@@ -16,6 +16,7 @@ import type {
   DonationImage,
   DonationStatus,
   FulfillmentMethod,
+  Role,
   StarTransaction,
   User,
 } from "./types";
@@ -62,8 +63,18 @@ interface AppValue {
   balance: number;
   grossEarned: number;
   pendingCount: number;
-  signInMagic: (email: string, name?: string) => void;
-  signInGoogle: () => void;
+  signInMagic: (
+    email: string,
+    name?: string,
+    phone?: string,
+    role?: Role,
+    whatsappOptIn?: boolean,
+    orgName?: string,
+    darpanId?: string,
+  ) => void;
+  signInGoogle: (profile?: { email: string; name: string; avatarUrl?: string }) => void;
+  signInPhone: (phone: string, name?: string, whatsappOptIn?: boolean) => void;
+  signInNgo: (orgName: string, email: string, phone: string, darpanId?: string) => void;
   signOut: () => void;
   createDonation: (draft: DonationDraft) => Donation;
   verifyDonation: (id: string) => void;
@@ -173,9 +184,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const signInMagic = useCallback(
-    (email: string, name?: string) => {
+    (
+      email: string,
+      name?: string,
+      phone?: string,
+      role?: Role,
+      whatsappOptIn?: boolean,
+      orgName?: string,
+      darpanId?: string,
+    ) => {
       const existing = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
       if (existing) {
+        if (phone || name || whatsappOptIn !== undefined || orgName || darpanId) {
+          const updated = users.map((u) =>
+            u.id === existing.id
+              ? {
+                  ...u,
+                  name: name?.trim() || u.name,
+                  phone: phone?.trim() || u.phone,
+                  whatsappOptIn: whatsappOptIn ?? u.whatsappOptIn,
+                  orgName: orgName?.trim() || u.orgName,
+                  darpanId: darpanId?.trim() || u.darpanId,
+                  role: role || u.role,
+                }
+              : u,
+          );
+          save({ users: updated, sessionId: existing.id });
+          return;
+        }
         save({ sessionId: existing.id });
         return;
       }
@@ -194,6 +230,75 @@ export function AppProvider({ children }: { children: ReactNode }) {
         id: `u_${Date.now()}`,
         name: displayName,
         email,
+        phone: phone?.trim(),
+        whatsappOptIn: whatsappOptIn ?? true,
+        orgName: orgName?.trim(),
+        darpanId: darpanId?.trim(),
+        avatarColor: role === "NGO" ? "#0e5c43" : "#16825f",
+        initials,
+        role: role || "USER",
+        joinedAt: new Date().toISOString(),
+        badges: [],
+      };
+      save({ users: [...users, user], sessionId: user.id });
+    },
+    [users, save],
+  );
+
+  const signInGoogle = useCallback(
+    (profile?: { email: string; name: string; avatarUrl?: string }) => {
+      if (profile) {
+        const existing = users.find((u) => u.email.toLowerCase() === profile.email.toLowerCase());
+        if (existing) {
+          save({ sessionId: existing.id });
+          return;
+        }
+        const initials = profile.name
+          .split(" ")
+          .map((p) => p[0])
+          .slice(0, 2)
+          .join("")
+          .toUpperCase();
+        const user: User = {
+          id: `u_${Date.now()}`,
+          name: profile.name,
+          email: profile.email,
+          avatarColor: "#4285F4",
+          initials,
+          role: "USER",
+          joinedAt: new Date().toISOString(),
+          badges: [],
+        };
+        save({ users: [...users, user], sessionId: user.id });
+        return;
+      }
+      const existing = users.find((u) => u.email === "mahesh.rao@example.com");
+      save({ sessionId: existing ? existing.id : SEED_USERS[0].id });
+    },
+    [users, save],
+  );
+
+  const signInPhone = useCallback(
+    (phone: string, name?: string, whatsappOptIn = true) => {
+      const cleanPhone = phone.trim();
+      const existing = users.find((u) => u.phone === cleanPhone);
+      if (existing) {
+        save({ sessionId: existing.id });
+        return;
+      }
+      const displayName = name?.trim() || `Donor ${cleanPhone.slice(-4)}`;
+      const initials = displayName
+        .split(" ")
+        .map((p) => p[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
+      const user: User = {
+        id: `u_${Date.now()}`,
+        name: displayName,
+        email: `${cleanPhone.replace(/\D/g, "")}@mobile.rekindle.org`,
+        phone: cleanPhone,
+        whatsappOptIn,
         avatarColor: "#16825f",
         initials,
         role: "USER",
@@ -205,10 +310,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [users, save],
   );
 
-  const signInGoogle = useCallback(() => {
-    const existing = users.find((u) => u.email === "mahesh.rao@example.com");
-    save({ sessionId: existing ? existing.id : SEED_USERS[0].id });
-  }, [users, save]);
+  const signInNgo = useCallback(
+    (orgName: string, email: string, phone: string, darpanId?: string) => {
+      const existing = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+      if (existing) {
+        save({ sessionId: existing.id });
+        return;
+      }
+      const initials = orgName
+        .split(" ")
+        .map((p) => p[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
+      const user: User = {
+        id: `u_${Date.now()}`,
+        name: orgName,
+        email,
+        phone,
+        orgName,
+        darpanId,
+        whatsappOptIn: true,
+        avatarColor: "#0e5c43",
+        initials,
+        role: "NGO",
+        joinedAt: new Date().toISOString(),
+        badges: ["VERIFIED_PARTNER"],
+      };
+      save({ users: [...users, user], sessionId: user.id });
+    },
+    [users, save],
+  );
 
   const signOut = useCallback(() => save({ sessionId: null }), [save]);
 
@@ -384,6 +516,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     pendingCount,
     signInMagic,
     signInGoogle,
+    signInPhone,
+    signInNgo,
     signOut,
     createDonation,
     verifyDonation,

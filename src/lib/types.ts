@@ -41,6 +41,9 @@ export interface User {
   initials: string;
   role: Role;
   phone?: string;
+  whatsappOptIn?: boolean;
+  orgName?: string;
+  darpanId?: string;
   joinedAt: string;
   bio?: string;
   address?: Address;

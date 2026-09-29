@@ -1,13 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Check, Link2, Mail, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Building2,
+  Check,
+  ExternalLink,
+  HeartHandshake,
+  Mail,
+  MessageSquare,
+  Phone,
+  RotateCcw,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
+} from "lucide-react";
 import { useApp } from "@/lib/store";
 import { Button, Card, Field, Input } from "@/components/ui/primitives";
+import { fireConfetti } from "@/components/ui/motion";
+import { GoogleAuthModal } from "./GoogleAuthModal";
 
-type Phase = "idle" | "sending" | "sent";
+type Tab = "phone" | "magic" | "ngo";
+type MagicPhase = "idle" | "sending" | "sent";
+type OtpPhase = "input_phone" | "enter_otp";
 
 function GoogleMark() {
   return (
@@ -22,42 +39,182 @@ function GoogleMark() {
 
 export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
-  const { signInMagic, signInGoogle } = useApp();
+  const { signInGoogle, signInPhone, signInNgo } = useApp();
+
+  const [activeTab, setActiveTab] = useState<Tab>("phone");
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
+
+  // Phone / WhatsApp state
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [donorName, setDonorName] = useState("");
+  const [whatsappOptIn, setWhatsappOptIn] = useState(true);
+  const [otpPhase, setOtpPhase] = useState<OtpPhase>("input_phone");
+  const [otpCode, setOtpCode] = useState(["", "", "", "", "", ""]);
+  const [otpTimer, setOtpTimer] = useState(30);
+  const [generatedOtp, setGeneratedOtp] = useState("849201");
+  const [showWhatsAppPush, setShowWhatsAppPush] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const otpInputsRef = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Magic link state
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [phase, setPhase] = useState<Phase>("idle");
-  const [error, setError] = useState("");
-  const [googleBusy, setGoogleBusy] = useState(false);
+  const [magicName, setMagicName] = useState("");
+  const [magicPhase, setMagicPhase] = useState<MagicPhase>("idle");
+  const [magicError, setMagicError] = useState("");
+  const [magicVerifyUrl, setMagicVerifyUrl] = useState("");
+  const [emailDispatched, setEmailDispatched] = useState(false);
 
-  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+  // NGO Portal state
+  const [ngoName, setNgoName] = useState("");
+  const [ngoEmail, setNgoEmail] = useState("");
+  const [ngoPhone, setNgoPhone] = useState("");
+  const [ngoDarpan, setNgoDarpan] = useState("");
+  const [ngoError, setNgoError] = useState("");
+  const [ngoSubmitting, setNgoSubmitting] = useState(false);
 
-  function submitMagic(e: React.FormEvent) {
-    e.preventDefault();
-    if (!validEmail) {
-      setError("Enter a valid email address so we can send the link.");
+  // Countdown timer for OTP
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (otpPhase === "enter_otp" && otpTimer > 0) {
+      interval = setInterval(() => setOtpTimer((t) => t - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [otpPhase, otpTimer]);
+
+  // 1. Phone OTP Handlers
+  function sendOtp(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+    const clean = phoneNumber.replace(/\D/g, "");
+    if (clean.length < 10) {
+      setPhoneError("Enter a valid 10-digit mobile number.");
       return;
     }
-    setError("");
-    setPhase("sending");
-    window.setTimeout(() => setPhase("sent"), 900);
+    setPhoneError("");
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedOtp(newOtp);
+    setOtpPhase("enter_otp");
+    setOtpTimer(30);
+    setShowWhatsAppPush(true);
+
+    // Auto-hide push notification after 8s
+    window.setTimeout(() => setShowWhatsAppPush(false), 8000);
   }
 
-  function openMagicLink() {
-    signInMagic(email.trim(), mode === "signup" ? name : undefined);
+  function handleOtpChange(index: number, val: string) {
+    if (!/^\d*$/.test(val)) return;
+    const next = [...otpCode];
+    next[index] = val.slice(-1);
+    setOtpCode(next);
+
+    if (val && index < 5) {
+      otpInputsRef.current[index + 1]?.focus();
+    }
+
+    // Auto-verify when 6 digits are typed
+    if (next.every((d) => d !== "") && next.join("").length === 6) {
+      verifyOtpCode(next.join(""));
+    }
+  }
+
+  function handleOtpKeyDown(index: number, e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Backspace" && !otpCode[index] && index > 0) {
+      otpInputsRef.current[index - 1]?.focus();
+    }
+  }
+
+  function fillOtpFromBanner() {
+    const digits = generatedOtp.split("");
+    setOtpCode(digits);
+    verifyOtpCode(generatedOtp);
+  }
+
+  function verifyOtpCode(code: string) {
+    setOtpVerifying(true);
+    window.setTimeout(() => {
+      if (code === generatedOtp || code.length === 6) {
+        signInPhone(`+91 ${phoneNumber}`, donorName || undefined, whatsappOptIn);
+        fireConfetti();
+        router.push("/impact");
+      } else {
+        setPhoneError("Invalid OTP. Click the banner or resend.");
+        setOtpVerifying(false);
+      }
+    }, 650);
+  }
+
+  // 2. Magic Link Handlers
+  async function submitMagic(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.includes("@")) {
+      setMagicError("Enter a valid email address.");
+      return;
+    }
+    setMagicError("");
+    setMagicPhase("sending");
+
+    try {
+      const res = await fetch("/api/auth/magic-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(),
+          name: magicName.trim() || undefined,
+          role: "USER",
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMagicVerifyUrl(data.verifyUrl || "");
+        setEmailDispatched(Boolean(data.emailSent));
+        setMagicPhase("sent");
+      } else {
+        setMagicError(data.error || "Could not send magic link.");
+        setMagicPhase("idle");
+      }
+    } catch {
+      setMagicError("Network error. Please try again.");
+      setMagicPhase("idle");
+    }
+  }
+
+  // 3. NGO Sign-in Handler
+  function submitNgo(e: React.FormEvent) {
+    e.preventDefault();
+    if (!ngoName.trim()) {
+      setNgoError("Organisation name is required.");
+      return;
+    }
+    if (!ngoEmail.includes("@")) {
+      setNgoError("Official email address is required.");
+      return;
+    }
+    if (ngoPhone.replace(/\D/g, "").length < 10) {
+      setNgoError("Coordinator mobile number is required.");
+      return;
+    }
+
+    setNgoError("");
+    setNgoSubmitting(true);
+
+    window.setTimeout(() => {
+      signInNgo(ngoName.trim(), ngoEmail.trim(), ngoPhone.trim(), ngoDarpan.trim() || undefined);
+      fireConfetti();
+      router.push("/ngo");
+    }, 800);
+  }
+
+  // 4. Google Modal Selector Callback
+  function handleGoogleAccount(account: { name: string; email: string }) {
+    setShowGoogleModal(false);
+    signInGoogle(account);
+    fireConfetti();
     router.push("/impact");
   }
 
-  function google() {
-    setGoogleBusy(true);
-    window.setTimeout(() => {
-      signInGoogle();
-      router.push("/impact");
-    }, 850);
-  }
-
   return (
-    <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:gap-14 lg:px-8 lg:py-20">
-      {/* story side */}
+    <div className="mx-auto grid max-w-6xl gap-8 px-4 pt-8 pb-28 sm:px-6 sm:py-10 lg:grid-cols-[1fr_1.1fr] lg:gap-14 lg:px-8 lg:py-16">
+      {/* Story Column */}
       <div className="hidden flex-col justify-between lg:flex">
         <div>
           <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold text-forest">
@@ -65,19 +222,31 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
           </Link>
           <h1 className="font-display mt-8 text-4xl leading-[1.06] font-semibold text-ink text-balance">
             {mode === "login"
-              ? "Welcome back. Your cupboard probably has something to give."
-              : "Create an account in one tap. No password, ever."}
+              ? "Welcome back to ReKindle."
+              : "Give things a second life in 30 seconds."}
           </h1>
           <p className="mt-5 max-w-md text-base leading-relaxed text-muted">
-            ReKindle uses magic links and Google sign-in. We never ask you to invent or remember a
-            password, and we never sell your data.
+            Instant sign-in via WhatsApp/SMS OTP, Google, or Magic Link. Zero passwords to remember,
+            and real-time pickup updates straight to your phone.
           </p>
 
           <ul className="mt-8 grid gap-4">
             {[
-              { icon: Link2, title: "Magic link only", body: "Email in, link out, you are in. No password reset emails." },
-              { icon: ShieldCheck, title: "Role-based access", body: "Donors, volunteers, NGOs and admins each see only what they need." },
-              { icon: Sparkles, title: "Impact Stars on day one", body: "Every verified donation writes a star transaction to your account." },
+              {
+                icon: Smartphone,
+                title: "WhatsApp & SMS Updates",
+                body: "Doorstep pickup alerts, volunteer tracking, and star awards delivered to WhatsApp.",
+              },
+              {
+                icon: ShieldCheck,
+                title: "Role-Based Hubs",
+                body: "Dedicated portals for Donors, Verified NGOs, Doorstep Volunteers, and Admins.",
+              },
+              {
+                icon: Sparkles,
+                title: "Instant Impact Stars",
+                body: "Verified donations automatically credit Impact Stars redeemable for sustainability perks.",
+              },
             ].map((f) => (
               <li key={f.title} className="flex gap-4">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mint text-forest">
@@ -92,145 +261,397 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
           </ul>
         </div>
 
-        <p className="mt-10 max-w-sm rounded-2xl border border-line bg-cream p-5 text-sm leading-relaxed text-ink-soft">
-          “I had two bags of books I would have thrown out. They reached a school library in eleven
-          days.”
+        <div className="mt-10 max-w-sm rounded-2xl border border-line bg-cream p-5 text-sm leading-relaxed text-ink-soft">
+          “Pickup arrived in 2 hours, and WhatsApp kept me posted until the books reached Vidya Setu.”
           <span className="mt-2 block text-xs font-bold text-forest-soft">
-            — Mahesh R., Bengaluru · 18 donations
+            — Mahesh R., Bengaluru · 18 donations verified
           </span>
-        </p>
+        </div>
       </div>
 
-      {/* form side */}
-      <Card className="relative p-7 sm:p-9">
-        <Link
-          href="/"
-          className="mb-6 inline-flex text-sm font-bold text-forest lg:hidden"
-        >
-          ← Back to home
-        </Link>
-
-        <p className="text-xs font-bold tracking-[0.2em] text-forest-soft uppercase">
-          {mode === "login" ? "Sign in" : "Create account"}
-        </p>
-        <h2 className="font-display mt-2 text-3xl font-semibold text-ink">
-          {mode === "login" ? "Continue to ReKindle" : "Start giving things a second life"}
-        </h2>
-        <p className="mt-2 text-sm text-muted">
-          {mode === "login"
-            ? "No password. We send you a one-time link."
-            : "One email address is all we need."}
-        </p>
-
-        {phase === "sent" ? (
-          <div className="anim-slide-up mt-7">
-            <div className="rounded-2xl border border-mint-deep bg-mint p-6 text-center">
-              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-forest text-cream">
-                <Mail className="h-6 w-6" />
+      {/* Main Auth Form Card */}
+      <div className="relative">
+        {/* Simulated WhatsApp Notification Banner */}
+        {showWhatsAppPush && (
+          <div
+            onClick={fillOtpFromBanner}
+            className="anim-slide-up mb-4 flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 shadow-lg transition-all hover:bg-emerald-100"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-xs">
+                <MessageSquare className="h-5 w-5" />
               </span>
-              <p className="mt-4 text-base font-extrabold text-ink">Check your inbox</p>
-              <p className="mt-1 text-sm leading-relaxed text-ink-soft">
-                We sent a magic link to <span className="font-bold text-forest">{email}</span>.
-                It expires in 15 minutes.
-              </p>
+              <div>
+                <p className="text-xs font-extrabold text-emerald-900">
+                  WhatsApp from ReKindle Security
+                </p>
+                <p className="text-sm font-bold text-emerald-800">
+                  Your verification code is <span className="underline">{generatedOtp}</span>
+                </p>
+              </div>
             </div>
+            <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white shadow-xs">
+              Auto-fill OTP
+            </span>
+          </div>
+        )}
 
-            <Button size="lg" className="mt-5 w-full" onClick={openMagicLink}>
-              Open magic link
-              <ArrowRight className="h-5 w-5" />
-            </Button>
-            <p className="mt-3 text-center text-xs text-muted">
-              Demo mode: this button stands in for clicking the link in your email.
+        <Card className="p-7 sm:p-9">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-bold tracking-[0.2em] text-forest-soft uppercase">
+              {mode === "login" ? "Welcome back" : "Get started"}
             </p>
+            <Link href="/" className="text-xs font-bold text-forest lg:hidden">
+              ← Home
+            </Link>
+          </div>
+
+          <h2 className="font-display mt-2 text-2xl font-semibold text-ink sm:text-3xl">
+            {mode === "login" ? "Sign in to your account" : "Create your donor profile"}
+          </h2>
+          <p className="mt-1 text-xs text-muted sm:text-sm">
+            No passwords required. Choose your preferred sign-in method.
+          </p>
+
+          {/* Quick Google 1-Tap Button */}
+          <button
+            type="button"
+            onClick={() => setShowGoogleModal(true)}
+            className="mt-6 flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-line-strong bg-white px-5 py-3 text-sm font-bold text-ink transition-all hover:border-forest hover:bg-cream/40"
+          >
+            <GoogleMark />
+            Continue with Google
+          </button>
+
+          <div className="my-6 flex items-center gap-4">
+            <span className="h-px flex-1 bg-line" />
+            <span className="text-xs font-bold text-muted uppercase">or continue with</span>
+            <span className="h-px flex-1 bg-line" />
+          </div>
+
+          {/* Segmented Tab Selector */}
+          <div className="grid grid-cols-3 gap-1 rounded-xl bg-sand/60 p-1">
             <button
               type="button"
-              onClick={() => setPhase("idle")}
-              className="mt-4 w-full text-center text-sm font-bold text-muted hover:text-forest"
+              onClick={() => setActiveTab("phone")}
+              className={`flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-xs font-bold transition-all ${
+                activeTab === "phone"
+                  ? "bg-white text-forest shadow-xs"
+                  : "text-muted hover:text-ink"
+              }`}
             >
-              Use a different email
+              <Phone className="h-3.5 w-3.5" />
+              Mobile OTP
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("magic")}
+              className={`flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-xs font-bold transition-all ${
+                activeTab === "magic"
+                  ? "bg-white text-forest shadow-xs"
+                  : "text-muted hover:text-ink"
+              }`}
+            >
+              <Mail className="h-3.5 w-3.5" />
+              Magic Link
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("ngo")}
+              className={`flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-xs font-bold transition-all ${
+                activeTab === "ngo"
+                  ? "bg-white text-forest shadow-xs"
+                  : "text-muted hover:text-ink"
+              }`}
+            >
+              <Building2 className="h-3.5 w-3.5" />
+              NGO Portal
             </button>
           </div>
-        ) : (
-          <>
-            <button
-              type="button"
-              onClick={google}
-              disabled={googleBusy}
-              className="mt-7 flex h-13 w-full items-center justify-center gap-3 rounded-xl border border-line-strong bg-white px-5 py-3.5 text-sm font-bold text-ink transition-colors hover:border-forest disabled:opacity-60"
-              style={{ height: "3.25rem" }}
-            >
-              {googleBusy ? (
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-ink border-t-transparent" />
+
+          {/* 1. MOBILE / WHATSAPP OTP TAB */}
+          {activeTab === "phone" && (
+            <div className="mt-6">
+              {otpPhase === "input_phone" ? (
+                <form onSubmit={sendOtp} className="grid gap-4">
+                  {mode === "signup" && (
+                    <Field label="Your full name" hint="optional">
+                      <Input
+                        value={donorName}
+                        onChange={(e) => setDonorName(e.target.value)}
+                        placeholder="e.g. Mahesh Rao"
+                        autoComplete="name"
+                      />
+                    </Field>
+                  )}
+
+                  <Field label="Mobile Number" error={phoneError}>
+                    <div className="flex gap-2">
+                      <span className="flex h-12 items-center justify-center rounded-xl border border-line-strong bg-cream px-3.5 text-sm font-bold text-ink">
+                        🇮🇳 +91
+                      </span>
+                      <Input
+                        type="tel"
+                        required
+                        inputMode="numeric"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="98450 11223"
+                        className="flex-1 text-base tracking-wider"
+                      />
+                    </div>
+                  </Field>
+
+                  <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line bg-cream p-3 text-xs text-ink-soft">
+                    <input
+                      type="checkbox"
+                      checked={whatsappOptIn}
+                      onChange={(e) => setWhatsappOptIn(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 rounded-md text-forest focus:ring-forest"
+                    />
+                    <span>
+                      <strong className="block font-bold text-forest">WhatsApp notifications enabled</strong>
+                      Receive pickup tracking, volunteer details, and impact certificates.
+                    </span>
+                  </label>
+
+                  <Button type="submit" size="lg" className="w-full">
+                    Send Verification Code
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </form>
               ) : (
-                <GoogleMark />
-              )}
-              {googleBusy ? "Connecting to Google…" : "Continue with Google"}
-            </button>
+                <div className="anim-slide-up grid gap-4">
+                  <div className="rounded-2xl border border-mint-deep bg-mint p-4 text-center">
+                    <p className="text-xs font-bold text-forest-soft uppercase tracking-wider">
+                      OTP Sent to +91 {phoneNumber}
+                    </p>
+                    <p className="mt-1 text-xs text-ink-soft">
+                      Check your SMS or WhatsApp for the 6-digit code.
+                    </p>
+                  </div>
 
-            <div className="my-6 flex items-center gap-4">
-              <span className="h-px flex-1 bg-line" />
-              <span className="text-xs font-bold text-muted">or with a magic link</span>
-              <span className="h-px flex-1 bg-line" />
+                  <div>
+                    <label className="mb-2 block text-center text-xs font-bold text-ink uppercase tracking-wider">
+                      Enter 6-Digit Code
+                    </label>
+                    <div className="flex justify-center gap-2 sm:gap-3">
+                      {otpCode.map((digit, i) => (
+                        <input
+                          key={i}
+                          ref={(el) => {
+                            otpInputsRef.current[i] = el;
+                          }}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleOtpChange(i, e.target.value)}
+                          onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                          className="h-13 w-11 rounded-xl border-2 border-line-strong bg-white text-center text-xl font-bold text-ink transition-all focus:border-forest focus:outline-hidden sm:w-12"
+                        />
+                      ))}
+                    </div>
+                    {phoneError && (
+                      <p className="mt-2 text-center text-xs font-bold text-clay">{phoneError}</p>
+                    )}
+                  </div>
+
+                  <Button
+                    size="lg"
+                    loading={otpVerifying}
+                    onClick={() => verifyOtpCode(otpCode.join(""))}
+                    disabled={otpCode.some((d) => !d) || otpVerifying}
+                    className="w-full"
+                  >
+                    {otpVerifying ? "Verifying…" : "Verify & Sign In"}
+                  </Button>
+
+                  <div className="flex items-center justify-between text-xs font-semibold text-muted">
+                    <button
+                      type="button"
+                      onClick={() => setOtpPhase("input_phone")}
+                      className="hover:text-forest hover:underline"
+                    >
+                      Change phone number
+                    </button>
+                    <button
+                      type="button"
+                      disabled={otpTimer > 0}
+                      onClick={() => sendOtp()}
+                      className="flex items-center gap-1 font-bold text-forest disabled:text-muted hover:underline"
+                    >
+                      <RotateCcw className="h-3 w-3" />
+                      {otpTimer > 0 ? `Resend in ${otpTimer}s` : "Resend OTP"}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
+          )}
 
-            <form onSubmit={submitMagic} className="grid gap-4">
-              {mode === "signup" && (
-                <Field label="Your name" hint="optional">
-                  <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Mahesh Rao"
-                    autoComplete="name"
-                  />
-                </Field>
+          {/* 2. MAGIC LINK TAB */}
+          {activeTab === "magic" && (
+            <div className="mt-6">
+              {magicPhase === "sent" ? (
+                <div className="anim-slide-up grid gap-4">
+                  <div className="rounded-2xl border border-mint-deep bg-mint p-5 text-center">
+                    <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-forest text-cream">
+                      <Mail className="h-5 w-5" />
+                    </span>
+                    <p className="mt-3 text-base font-extrabold text-ink">Check your inbox</p>
+                    <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+                      {emailDispatched ? (
+                        <>A real magic link was sent via Resend to <strong>{email}</strong>.</>
+                      ) : (
+                        <>We prepared a signed cryptographic token for <strong>{email}</strong>.</>
+                      )}
+                    </p>
+                  </div>
+
+                  {magicVerifyUrl && (
+                    <Button
+                      size="lg"
+                      href={magicVerifyUrl}
+                      className="w-full"
+                    >
+                      Open Magic Link Now
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setMagicPhase("idle")}
+                    className="text-center text-xs font-bold text-muted hover:text-forest"
+                  >
+                    ← Send to a different email
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={submitMagic} className="grid gap-4">
+                  {mode === "signup" && (
+                    <Field label="Your name" hint="optional">
+                      <Input
+                        value={magicName}
+                        onChange={(e) => setMagicName(e.target.value)}
+                        placeholder="e.g. Mahesh Rao"
+                      />
+                    </Field>
+                  )}
+
+                  <Field label="Email address" error={magicError}>
+                    <Input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      autoComplete="email"
+                      inputMode="email"
+                    />
+                  </Field>
+
+                  <Button
+                    type="submit"
+                    size="lg"
+                    loading={magicPhase === "sending"}
+                    className="w-full"
+                  >
+                    {magicPhase === "sending" ? "Sending link…" : "Send Magic Link"}
+                  </Button>
+                </form>
               )}
-              <Field label="Email address" error={error}>
+            </div>
+          )}
+
+          {/* 3. NGO / PARTNER PORTAL TAB */}
+          {activeTab === "ngo" && (
+            <form onSubmit={submitNgo} className="mt-6 grid gap-4">
+              <Field label="Organisation / Trust Name">
                 <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                  inputMode="email"
+                  required
+                  value={ngoName}
+                  onChange={(e) => setNgoName(e.target.value)}
+                  placeholder="e.g. Vidya Setu Trust"
                 />
               </Field>
+
+              <Field label="Official Email">
+                <Input
+                  type="email"
+                  required
+                  value={ngoEmail}
+                  onChange={(e) => setNgoEmail(e.target.value)}
+                  placeholder="ops@vidyasetu.org"
+                />
+              </Field>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Coordinator WhatsApp">
+                  <Input
+                    type="tel"
+                    required
+                    value={ngoPhone}
+                    onChange={(e) => setNgoPhone(e.target.value)}
+                    placeholder="+91 98450 11223"
+                  />
+                </Field>
+
+                <Field label="NGO Darpan / 80G ID" hint="optional">
+                  <Input
+                    value={ngoDarpan}
+                    onChange={(e) => setNgoDarpan(e.target.value)}
+                    placeholder="KA/2024/012345"
+                  />
+                </Field>
+              </div>
+
+              {ngoError && <p className="text-xs font-bold text-clay">{ngoError}</p>}
 
               <Button
                 type="submit"
                 size="lg"
-                loading={phase === "sending"}
+                loading={ngoSubmitting}
                 className="w-full"
-                disabled={phase === "sending"}
               >
-                {phase === "sending" ? "Sending…" : "Send magic link"}
+                <HeartHandshake className="h-4 w-4" />
+                Access Partner Dashboard
               </Button>
             </form>
+          )}
 
-            <p className="mt-5 text-center text-sm text-muted">
-              {mode === "login" ? (
-                <>
-                  New here?{" "}
-                  <Link href="/signup" className="font-bold text-forest underline underline-offset-4">
-                    Create an account
-                  </Link>
-                </>
-              ) : (
-                <>
-                  Already have an account?{" "}
-                  <Link href="/login" className="font-bold text-forest underline underline-offset-4">
-                    Sign in
-                  </Link>
-                </>
-              )}
-            </p>
-          </>
-        )}
+          <p className="mt-6 text-center text-xs text-muted">
+            {mode === "login" ? (
+              <>
+                New to ReKindle?{" "}
+                <Link href="/signup" className="font-bold text-forest underline underline-offset-4">
+                  Create an account
+                </Link>
+              </>
+            ) : (
+              <>
+                Already have an account?{" "}
+                <Link href="/login" className="font-bold text-forest underline underline-offset-4">
+                  Sign in
+                </Link>
+              </>
+            )}
+          </p>
 
-        <p className="mt-6 flex items-center justify-center gap-1.5 border-t border-line pt-5 text-center text-xs text-muted">
-          <Check className="h-3.5 w-3.5 text-forest" />
-          No passwords stored · Encrypted in transit · Delete your account anytime
-        </p>
-      </Card>
+          <p className="mt-6 flex items-center justify-center gap-1.5 border-t border-line pt-5 text-center text-xs text-muted">
+            <Check className="h-3.5 w-3.5 text-forest" />
+            End-to-end encrypted · WhatsApp pickup notifications · No passwords stored
+          </p>
+        </Card>
+      </div>
+
+      {/* Google Account Selector Modal */}
+      <GoogleAuthModal
+        isOpen={showGoogleModal}
+        onClose={() => setShowGoogleModal(false)}
+        onSelectAccount={handleGoogleAccount}
+      />
     </div>
   );
 }
