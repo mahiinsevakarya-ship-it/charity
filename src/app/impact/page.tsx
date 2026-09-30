@@ -25,7 +25,7 @@ import {
   SectionHeading,
   StatusPill,
 } from "@/components/ui/primitives";
-import { PageHeader, Shell } from "@/components/ui/page";
+import { AuthGate, PageHeader, Shell } from "@/components/ui/page";
 
 const HELPED = [
   { icon: BookOpen, key: "books", label: "learning resources reach students", tone: "bg-mint text-forest" },
@@ -79,9 +79,13 @@ export default function ImpactDashboardPage() {
         }
       />
 
-      <Shell>
-        {/* hero stat */}
-        <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr]">
+      <AuthGate
+        title="Sign in to view your impact"
+        message="Your impact statistics, items saved from landfills, and verified donations are tied to your personal donor account."
+      >
+        <Shell>
+          {/* hero stat */}
+          <div className="grid gap-5 lg:grid-cols-[1.2fr_1fr]">
           <Card className="relative overflow-hidden p-7 sm:p-9">
             <div
               aria-hidden
@@ -282,9 +286,10 @@ export default function ImpactDashboardPage() {
             <Button href="/my-donations" variant="gold" className="shrink-0">
               Track them
             </Button>
-          </Card>
-        )}
-      </Shell>
+            </Card>
+          )}
+        </Shell>
+      </AuthGate>
     </>
   );
 }

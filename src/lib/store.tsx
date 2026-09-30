@@ -131,17 +131,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<StarTransaction[]>(SEED_STAR_TRANSACTIONS);
   const [justVerifiedId, setJustVerifiedId] = useState<string | null>(null);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- syncing persisted localStorage on client mount */
   useEffect(() => {
     const saved = loadState();
     if (saved) {
-      /* eslint-disable-next-line react-hooks/set-state-in-effect -- syncing persisted localStorage on mount */
-      setSession(saved.sessionId);
-      setUsers(saved.users.length ? saved.users : SEED_USERS);
-      setDonations(saved.donations.length ? saved.donations : SEED_DONATIONS);
-      setTransactions(saved.transactions.length ? saved.transactions : SEED_STAR_TRANSACTIONS);
+      if (saved.sessionId !== undefined) {
+        setSession(saved.sessionId);
+      }
+      if (saved.users && Array.isArray(saved.users) && saved.users.length > 0) {
+        setUsers(saved.users);
+      }
+      if (saved.donations && Array.isArray(saved.donations) && saved.donations.length > 0) {
+        setDonations(saved.donations);
+      }
+      if (saved.transactions && Array.isArray(saved.transactions) && saved.transactions.length > 0) {
+        setTransactions(saved.transactions);
+      }
     }
     setReady(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const save = useCallback(
     (next: Partial<PersistedState>) => {

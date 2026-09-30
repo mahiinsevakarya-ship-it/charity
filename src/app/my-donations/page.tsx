@@ -8,7 +8,7 @@ import { CATEGORY_MAP, STATUS_META } from "@/lib/catalog";
 import type { Donation } from "@/lib/types";
 import { formatDate, relativeTime } from "@/lib/format";
 import { Button, Chip, DonationSkeleton, EmptyState, StatusPill } from "@/components/ui/primitives";
-import { PageHeader, Shell } from "@/components/ui/page";
+import { AuthGate, PageHeader, Shell } from "@/components/ui/page";
 
 const FILTERS = [
   { id: "all", label: "All" },
@@ -60,7 +60,11 @@ export default function MyDonationsPage() {
         actions={<Button href="/donate">New donation</Button>}
       />
 
-      <Shell>
+      <AuthGate
+        title="Sign in to view your donations"
+        message="Track your doorstep collections, verified receipts, and Impact Star credits."
+      >
+        <Shell>
         <div className="mb-6 flex flex-wrap gap-2">
           {FILTERS.map((f) => (
             <Chip key={f.id} active={filter === f.id} onClick={() => setFilter(f.id)}>
@@ -153,7 +157,8 @@ export default function MyDonationsPage() {
             })}
           </ul>
         )}
-      </Shell>
+        </Shell>
+      </AuthGate>
     </>
   );
 }

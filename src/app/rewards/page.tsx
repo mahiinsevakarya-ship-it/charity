@@ -26,7 +26,7 @@ import {
   Skeleton,
   StatusPill,
 } from "@/components/ui/primitives";
-import { PageHeader, Shell } from "@/components/ui/page";
+import { AuthGate, PageHeader, Shell } from "@/components/ui/page";
 
 const BADGE_ICONS: Record<string, typeof Award> = {
   sparkle: Sparkles,
@@ -111,7 +111,11 @@ export default function RewardsPage() {
         actions={<Button href="/donate">Earn more stars</Button>}
       />
 
-      <Shell>
+      <AuthGate
+        title="Sign in to view your rewards"
+        message="Your Impact Star balance, unlocked badges, and sustainability perks are tied to your personal donor account."
+      >
+        <Shell>
         {!ready ? (
           <div className="grid gap-4">
             <Skeleton className="h-40 w-full rounded-3xl" />
@@ -361,7 +365,8 @@ export default function RewardsPage() {
             </section>
           </>
         )}
-      </Shell>
+        </Shell>
+      </AuthGate>
     </>
   );
 }
