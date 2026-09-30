@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
+  AlertCircle,
   ArrowRight,
   Building2,
   Check,
@@ -38,6 +39,8 @@ function GoogleMark() {
 
 export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlError = searchParams.get("error");
   const { signInPhone, signInNgo } = useApp();
 
   const [activeTab, setActiveTab] = useState<Tab>("phone");
@@ -303,6 +306,28 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
           <p className="mt-1 text-xs text-muted sm:text-sm">
             No passwords required. Choose your preferred sign-in method.
           </p>
+
+          {urlError && (
+            <div className="anim-slide-up mt-4 flex items-start gap-2.5 rounded-xl border border-clay bg-clay-soft p-3.5 text-xs text-ink">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#b14f31]" />
+              <div>
+                <strong className="block font-bold text-[#b14f31]">
+                  {urlError === "invalid_state"
+                    ? "Session Expired or Origin Mismatch"
+                    : urlError === "google_credentials_missing"
+                      ? "Google Credentials Missing"
+                      : "Sign-in could not be completed"}
+                </strong>
+                <span>
+                  {urlError === "invalid_state"
+                    ? "Please click 'Continue with Google' again to initiate a fresh login."
+                    : urlError === "google_credentials_missing"
+                      ? "Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your environment variables."
+                      : `Error: ${urlError}. Please try again.`}
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Direct Google OAuth 2.0 Button */}
           <a

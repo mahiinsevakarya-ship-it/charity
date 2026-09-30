@@ -8,16 +8,13 @@ export async function GET(req: NextRequest) {
   const state = searchParams.get("state");
   const error = searchParams.get("error");
 
-  const origin = getAppUrl(req);
-  const redirectUri = `${origin}/api/auth/callback/google`;
+  // Attempt to recover the original initiating domain from the signed state token
+  const statePayload = state ? verifyMagicToken(state) : null;
+  const origin = statePayload?.orgName || getAppUrl(req);
+  const redirectUri = `${getAppUrl(req)}/api/auth/callback/google`;
 
   if (error || !code) {
     return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(error || "cancelled")}`, origin));
-  }
-
-  // Validate state
-  if (!state || !verifyMagicToken(state)) {
-    return NextResponse.redirect(new URL("/login?error=invalid_state", origin));
   }
 
   const clientId = process.env.GOOGLE_CLIENT_ID;

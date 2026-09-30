@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { AuthPanel } from "@/components/auth/AuthPanel";
 
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function LoginPage() {
-  return <AuthPanel mode="login" />;
+  return (
+    <Suspense fallback={null}>
+      <AuthPanel mode="login" />
+    </Suspense>
+  );
 }

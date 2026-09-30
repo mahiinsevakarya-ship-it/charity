@@ -49,8 +49,8 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // Create state token for CSRF protection
-  const state = createMagicToken({ email: "oauth_state", role: "USER" }, 10 * 60);
+  // Embed the originating domain in the state token so the callback always returns to the right domain
+  const state = createMagicToken({ email: "oauth_state", orgName: origin, role: "USER" }, 15 * 60);
 
   const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   googleAuthUrl.searchParams.set("client_id", clientId);
