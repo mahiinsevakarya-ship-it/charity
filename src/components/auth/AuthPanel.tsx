@@ -20,7 +20,6 @@ import {
 import { useApp } from "@/lib/store";
 import { Button, Card, Field, Input } from "@/components/ui/primitives";
 import { fireConfetti } from "@/components/ui/motion";
-import { GoogleAuthModal } from "./GoogleAuthModal";
 
 type Tab = "phone" | "magic" | "ngo";
 type MagicPhase = "idle" | "sending" | "sent";
@@ -39,10 +38,10 @@ function GoogleMark() {
 
 export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
-  const { signInGoogle, signInPhone, signInNgo } = useApp();
+  const { signInPhone, signInNgo } = useApp();
 
   const [activeTab, setActiveTab] = useState<Tab>("phone");
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   // Phone / WhatsApp state
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -204,14 +203,6 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
     }, 800);
   }
 
-  // 4. Google Modal Selector Callback
-  function handleGoogleAccount(account: { name: string; email: string }) {
-    setShowGoogleModal(false);
-    signInGoogle(account);
-    fireConfetti();
-    router.push("/impact");
-  }
-
   return (
     <div className="mx-auto grid max-w-6xl gap-8 px-4 pt-8 pb-28 sm:px-6 sm:py-10 lg:grid-cols-[1fr_1.1fr] lg:gap-14 lg:px-8 lg:py-16">
       {/* Story Column */}
@@ -313,15 +304,19 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
             No passwords required. Choose your preferred sign-in method.
           </p>
 
-          {/* Quick Google 1-Tap Button */}
-          <button
-            type="button"
-            onClick={() => setShowGoogleModal(true)}
+          {/* Direct Google OAuth 2.0 Button */}
+          <a
+            href="/api/auth/google"
+            onClick={() => setGoogleLoading(true)}
             className="mt-6 flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-line-strong bg-white px-5 py-3 text-sm font-bold text-ink transition-all hover:border-forest hover:bg-cream/40"
           >
-            <GoogleMark />
-            Continue with Google
-          </button>
+            {googleLoading ? (
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-forest border-t-transparent" />
+            ) : (
+              <GoogleMark />
+            )}
+            {googleLoading ? "Connecting to Google…" : "Continue with Google"}
+          </a>
 
           <div className="my-6 flex items-center gap-4">
             <span className="h-px flex-1 bg-line" />
@@ -645,13 +640,6 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
           </p>
         </Card>
       </div>
-
-      {/* Google Account Selector Modal */}
-      <GoogleAuthModal
-        isOpen={showGoogleModal}
-        onClose={() => setShowGoogleModal(false)}
-        onSelectAccount={handleGoogleAccount}
-      />
     </div>
   );
 }
