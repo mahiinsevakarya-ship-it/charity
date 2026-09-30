@@ -1,13 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createMagicToken } from "@/lib/auth-token";
+import { getAppUrl } from "@/lib/get-app-url";
 
 export async function GET(req: NextRequest) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
 
-  // Determine origin URL
-  const proto = req.headers.get("x-forwarded-proto") || "http";
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "localhost:3000";
-  const origin = `${proto}://${host}`;
+  // Determine canonical origin URL
+  const origin = getAppUrl(req);
   const redirectUri = `${origin}/api/auth/callback/google`;
 
   if (!clientId) {
@@ -32,7 +31,7 @@ export async function GET(req: NextRequest) {
       <body>
         <div class="card">
           <h1>Google OAuth Setup Required</h1>
-          <p>To connect real Google authentication to your domain (<strong>${host}</strong>):</p>
+          <p>To connect real Google authentication to your domain (<strong>${origin}</strong>):</p>
           <ol>
             <li>Go to <strong>Google Cloud Console &rarr; Credentials</strong>.</li>
             <li>Create an <strong>OAuth 2.0 Client ID</strong> (Web Application).</li>

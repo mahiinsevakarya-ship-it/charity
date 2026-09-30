@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createMagicToken, verifyMagicToken } from "@/lib/auth-token";
+import { getAppUrl } from "@/lib/get-app-url";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
@@ -7,9 +8,7 @@ export async function GET(req: NextRequest) {
   const state = searchParams.get("state");
   const error = searchParams.get("error");
 
-  const proto = req.headers.get("x-forwarded-proto") || "http";
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "localhost:3000";
-  const origin = `${proto}://${host}`;
+  const origin = getAppUrl(req);
   const redirectUri = `${origin}/api/auth/callback/google`;
 
   if (error || !code) {
