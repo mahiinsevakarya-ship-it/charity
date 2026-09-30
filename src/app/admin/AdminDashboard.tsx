@@ -38,6 +38,7 @@ import {
   Skeleton,
   StatusPill,
 } from "@/components/ui/primitives";
+import { PhoneInput } from "@/components/ui/PhoneInput";
 import { PageHeader, Shell } from "@/components/ui/page";
 import { CategoryBar } from "@/app/transparency/Report";
 
@@ -765,11 +766,9 @@ export function AdminDashboard() {
                     </Field>
 
                     <Field label="Mobile Number" hint="optional">
-                      <Input
-                        type="tel"
+                      <PhoneInput
                         value={invitePhone}
-                        onChange={(e) => setInvitePhone(e.target.value)}
-                        placeholder="+91 98450 11223"
+                        onChange={setInvitePhone}
                       />
                     </Field>
                   </div>

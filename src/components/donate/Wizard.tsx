@@ -19,6 +19,7 @@ import { CATEGORIES, CATEGORY_MAP, CONDITIONS, estimateStars } from "@/lib/catal
 import type { Category, Condition, FulfillmentMethod } from "@/lib/types";
 import { useApp } from "@/lib/store";
 import { Button, Card, Chip, Field, Input, Textarea } from "@/components/ui/primitives";
+import { PhoneInput, validatePhoneNumber } from "@/components/ui/PhoneInput";
 
 const STEPS = [
   { id: "items", label: "What" },
@@ -194,8 +195,10 @@ export function DonateWizard() {
         if (!address.trim()) next.address = "We need an address for pickup.";
         if (!date) next.date = "Pick a preferred date.";
         if (!slot) next.slot = "Pick a time slot.";
-        if (!phone.trim() || phone.trim().length < 8)
-          next.phone = "A contact number helps the volunteer reach you.";
+        const phoneCheck = validatePhoneNumber(phone);
+        if (!phoneCheck.valid) {
+          next.phone = phoneCheck.error || "A contact number helps the volunteer reach you.";
+        }
       } else if (!dropPoint) {
         next.dropPoint = "Choose a drop-off point.";
       }
@@ -617,13 +620,14 @@ export function DonateWizard() {
                     <Field
                       label="Contact Mobile Number"
                       hint={me?.phone ? "Saved in profile" : "Saved to your profile"}
-                      error={errors.phone}
                     >
-                      <Input
+                      <PhoneInput
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="+91 98450 11223"
-                        inputMode="tel"
+                        onChange={(val) => {
+                          setPhone(val);
+                          setErrors((e) => ({ ...e, phone: "" }));
+                        }}
+                        error={errors.phone}
                       />
                     </Field>
                   </div>

@@ -24,6 +24,7 @@ import {
   Input,
   StatusPill,
 } from "@/components/ui/primitives";
+import { PhoneInput } from "@/components/ui/PhoneInput";
 import { AuthGate, PageHeader, Shell } from "@/components/ui/page";
 
 function ProfileContent() {
@@ -138,8 +139,8 @@ function ProfileContent() {
                   <Field label="Full name">
                     <Input value={name} onChange={(e) => setName(e.target.value)} />
                   </Field>
-                  <Field label="Contact number" hint="used for pickups">
-                    <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  <Field label="Contact number" hint="used for doorstep pickups">
+                    <PhoneInput value={phone} onChange={setPhone} />
                   </Field>
                   <div className="flex gap-3">
                     <Button onClick={save}>Save changes</Button>
