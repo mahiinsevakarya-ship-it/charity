@@ -121,7 +121,7 @@ function nextDays(count: number) {
 
 export function DonateWizard() {
   const router = useRouter();
-  const { createDonation, me } = useApp();
+  const { createDonation, me, updateMe } = useApp();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState(0);
@@ -140,6 +140,17 @@ export function DonateWizard() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const [prevMe, setPrevMe] = useState(me);
+  if (me !== prevMe) {
+    setPrevMe(me);
+    if (me?.phone && !phone) {
+      setPhone(me.phone);
+    }
+    if (me?.address?.line1 && !address) {
+      setAddress(me.address.line1);
+    }
+  }
 
   const days = useMemo(() => nextDays(8), []);
 
@@ -232,6 +243,26 @@ export function DonateWizard() {
   function submit() {
     if (!validate(4) || submitting) return;
     setSubmitting(true);
+
+    // Save phone and address to the user's permanent profile if not already set or if updated
+    if (phone.trim()) {
+      updateMe({
+        phone: phone.trim(),
+        whatsappOptIn: true,
+        address: address.trim()
+          ? {
+              id: me?.address?.id || `ad_${Date.now()}`,
+              label: "Home / Pickup Address",
+              line1: address.trim(),
+              area: "",
+              city: city.trim() || "Bengaluru",
+              state: "Karnataka",
+              pincode: me?.address?.pincode || "560001",
+            }
+          : me?.address,
+      });
+    }
+
     window.setTimeout(() => {
       const donation = createDonation({
         items,
@@ -583,7 +614,11 @@ export function DonateWizard() {
                     <Field label="City">
                       <Input value={city} onChange={(e) => setCity(e.target.value)} />
                     </Field>
-                    <Field label="Contact number" error={errors.phone}>
+                    <Field
+                      label="Contact Mobile Number"
+                      hint={me?.phone ? "Saved in profile" : "Saved to your profile"}
+                      error={errors.phone}
+                    >
                       <Input
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}

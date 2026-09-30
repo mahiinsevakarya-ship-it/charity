@@ -37,13 +37,16 @@ function GoogleMark() {
   );
 }
 
+// Set to true when WhatsApp / SMS provider API keys are configured
+const SHOW_MOBILE_OTP = false;
+
 export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlError = searchParams.get("error");
   const { signInPhone, signInNgo } = useApp();
 
-  const [activeTab, setActiveTab] = useState<Tab>("phone");
+  const [activeTab, setActiveTab] = useState<Tab>(SHOW_MOBILE_OTP ? "phone" : "magic");
   const [googleLoading, setGoogleLoading] = useState(false);
 
   // Phone / WhatsApp state
@@ -265,8 +268,8 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
 
       {/* Main Auth Form Card */}
       <div className="relative">
-        {/* Simulated WhatsApp Notification Banner */}
-        {showWhatsAppPush && (
+        {/* Simulated WhatsApp Notification Banner (shown when Mobile OTP is active) */}
+        {SHOW_MOBILE_OTP && showWhatsAppPush && (
           <div
             onClick={fillOtpFromBanner}
             className="anim-slide-up mb-4 flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 shadow-lg transition-all hover:bg-emerald-100"
@@ -350,19 +353,25 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
           </div>
 
           {/* Segmented Tab Selector */}
-          <div className="grid grid-cols-3 gap-1 rounded-xl bg-sand/60 p-1">
-            <button
-              type="button"
-              onClick={() => setActiveTab("phone")}
-              className={`flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-xs font-bold transition-all ${
-                activeTab === "phone"
-                  ? "bg-white text-forest shadow-xs"
-                  : "text-muted hover:text-ink"
-              }`}
-            >
-              <Phone className="h-3.5 w-3.5" />
-              Mobile OTP
-            </button>
+          <div
+            className={`grid gap-1 rounded-xl bg-sand/60 p-1 ${
+              SHOW_MOBILE_OTP ? "grid-cols-3" : "grid-cols-2"
+            }`}
+          >
+            {SHOW_MOBILE_OTP && (
+              <button
+                type="button"
+                onClick={() => setActiveTab("phone")}
+                className={`flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-xs font-bold transition-all ${
+                  activeTab === "phone"
+                    ? "bg-white text-forest shadow-xs"
+                    : "text-muted hover:text-ink"
+                }`}
+              >
+                <Phone className="h-3.5 w-3.5" />
+                Mobile OTP
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setActiveTab("magic")}
