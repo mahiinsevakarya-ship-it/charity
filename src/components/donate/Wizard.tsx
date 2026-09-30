@@ -368,7 +368,25 @@ export function DonateWizard() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setQty(cat, value + 10)}
+                            className="rounded-lg bg-cream px-2 py-1 text-xs font-bold text-ink-soft hover:bg-sand"
+                            title="Add 10 units"
+                          >
+                            +10
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setQty(cat, value + 50)}
+                            className="rounded-lg bg-cream px-2 py-1 text-xs font-bold text-ink-soft hover:bg-sand"
+                            title="Add 50 units (Bulk / Carton)"
+                          >
+                            +50
+                          </button>
+                        </div>
                         <Stepper
                           value={value}
                           onChange={(v) => setQty(cat, v)}

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ClipboardList, LogOut, Menu, ShieldCheck, Sparkles, User as UserIcon, X } from "lucide-react";
+import { Building2, ClipboardList, LogOut, Menu, ShieldCheck, Sparkles, User as UserIcon, X } from "lucide-react";
 import { Button, Logo } from "@/components/ui/primitives";
 import { Avatar } from "@/components/ui/motion";
 import { num } from "@/lib/format";
@@ -109,21 +109,24 @@ export function Header() {
                       ⭐ {num(stats.balance)} Impact Stars · {stats.level.name}
                     </div>
                     {[
-                      { href: "/profile", label: "Profile", icon: UserIcon },
-                      { href: "/my-donations", label: "My Donations", icon: ClipboardList },
-                      { href: "/rewards", label: "Rewards & Stars", icon: Sparkles },
-                      { href: "/admin", label: "Admin Dashboard", icon: ShieldCheck },
-                    ].map((l) => (
-                      <Link
-                        key={l.href}
-                        href={l.href}
-                        role="menuitem"
-                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-cream hover:text-forest"
-                      >
-                        <l.icon className="h-4 w-4" />
-                        {l.label}
-                      </Link>
-                    ))}
+                      { href: "/profile", label: "Profile", icon: UserIcon, show: true },
+                      { href: "/my-donations", label: "My Donations", icon: ClipboardList, show: me.role === "USER" || me.role === "ADMIN" },
+                      { href: "/rewards", label: "Rewards & Stars", icon: Sparkles, show: me.role === "USER" || me.role === "ADMIN" },
+                      { href: "/ngo", label: "Partner Dashboard", icon: Building2, show: me.role === "NGO" || me.role === "ADMIN" },
+                      { href: "/admin", label: "Admin Console", icon: ShieldCheck, show: me.role === "ADMIN" },
+                    ]
+                      .filter((l) => l.show)
+                      .map((l) => (
+                        <Link
+                          key={l.href}
+                          href={l.href}
+                          role="menuitem"
+                          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-cream hover:text-forest"
+                        >
+                          <l.icon className="h-4 w-4" />
+                          {l.label}
+                        </Link>
+                      ))}
                     <button
                       onClick={() => {
                         signOut();

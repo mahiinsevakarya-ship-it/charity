@@ -82,6 +82,13 @@ interface AppValue {
   adjustStars: (userId: string, stars: number, reason: string) => void;
   redeemPerk: (stars: number, label: string) => void;
   updateMe: (patch: Partial<User>) => void;
+  createUser: (data: {
+    name: string;
+    email: string;
+    role: Role;
+    phone?: string;
+    orgName?: string;
+  }) => User;
 }
 
 const AppContext = createContext<AppValue | null>(null);
@@ -500,6 +507,51 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [users, session, save],
   );
 
+  const createUser = useCallback(
+    (data: {
+      name: string;
+      email: string;
+      role: Role;
+      phone?: string;
+      orgName?: string;
+    }): User => {
+      const displayName = data.name.trim();
+      const initials =
+        displayName
+          .split(" ")
+          .map((p) => p[0])
+          .slice(0, 2)
+          .join("")
+          .toUpperCase() || "U";
+      const roleColors: Record<Role, string> = {
+        ADMIN: "#1a1a17",
+        NGO: "#0e5c43",
+        VOLUNTEER: "#16825f",
+        USER: "#4285F4",
+      };
+      const newUser: User = {
+        id: `u_${Date.now()}`,
+        name: displayName,
+        email: data.email.trim().toLowerCase(),
+        phone: data.phone?.trim(),
+        orgName: data.orgName?.trim(),
+        role: data.role,
+        avatarColor: roleColors[data.role] || "#16825f",
+        initials,
+        joinedAt: new Date().toISOString(),
+        badges:
+          data.role === "NGO"
+            ? ["VERIFIED_PARTNER"]
+            : data.role === "ADMIN"
+              ? ["community_builder"]
+              : [],
+      };
+      save({ users: [...users, newUser] });
+      return newUser;
+    },
+    [users, save],
+  );
+
   const value: AppValue = {
     ready,
     justVerifiedId,
@@ -525,6 +577,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     adjustStars,
     redeemPerk,
     updateMe,
+    createUser,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

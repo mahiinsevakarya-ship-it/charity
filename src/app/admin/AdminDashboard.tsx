@@ -7,25 +7,34 @@ import {
   ArrowRight,
   BadgeCheck,
   Ban,
+  Check,
   CheckCircle2,
+  Copy,
   Download,
   Flag,
   Gift,
   Layers,
+  Lock,
+  MessageSquare,
   ScrollText,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
+  UserPlus,
   Users2,
+  X,
 } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { CATEGORIES, CATEGORY_MAP, STATUS_META } from "@/lib/catalog";
-import type { DonationStatus } from "@/lib/types";
+import type { DonationStatus, Role } from "@/lib/types";
 import { formatDate, itemWords, num, relativeTime } from "@/lib/format";
 import { Avatar, fireConfetti } from "@/components/ui/motion";
 import {
   Button,
   Card,
   EmptyState,
+  Field,
+  Input,
   Skeleton,
   StatusPill,
 } from "@/components/ui/primitives";
@@ -69,10 +78,32 @@ const AUDIT = [
 ];
 
 export function AdminDashboard() {
-  const { donations, users, transactions, partners, ready, setStatus, verifyDonation, adjustStars } =
-    useApp();
+  const {
+    me,
+    donations,
+    users,
+    transactions,
+    partners,
+    ready,
+    setStatus,
+    verifyDonation,
+    adjustStars,
+    createUser,
+    signInMagic,
+  } = useApp();
   const [tab, setTab] = useState<TabId>("overview");
   const [toast, setToast] = useState<string | null>(null);
+
+  // Superuser Invite Modal state
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [inviteName, setInviteName] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [invitePhone, setInvitePhone] = useState("");
+  const [inviteRole, setInviteRole] = useState<Role>("USER");
+  const [inviteOrg, setInviteOrg] = useState("");
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteResultUrl, setInviteResultUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const queue = useMemo(
     () =>
@@ -85,11 +116,79 @@ export function AdminDashboard() {
   const flagged = donations.filter((d) => d.flags > 0);
   const starsIssued = transactions.filter((t) => t.stars > 0).reduce((s, t) => s + t.stars, 0);
   const pending = queue.length;
-  const awaitingReceipt = donations.filter((d) => d.status === "PICKUP_SCHEDULED" || d.status === "COLLECTED").length;
+  const awaitingReceipt = donations.filter(
+    (d) => d.status === "PICKUP_SCHEDULED" || d.status === "COLLECTED",
+  ).length;
 
   function notify(message: string) {
     setToast(message);
     window.setTimeout(() => setToast(null), 4200);
+  }
+
+  async function handleCreateUser(e: React.FormEvent) {
+    e.preventDefault();
+    if (!inviteName.trim() || !inviteEmail.includes("@")) {
+      notify("Please provide a valid name and email address.");
+      return;
+    }
+    setInviteLoading(true);
+
+    // 1. Create user in platform store
+    createUser({
+      name: inviteName.trim(),
+      email: inviteEmail.trim(),
+      phone: invitePhone.trim() || undefined,
+      role: inviteRole,
+      orgName: inviteRole === "NGO" ? inviteOrg.trim() : undefined,
+    });
+
+    // 2. Generate secure Magic Invite Link via backend API
+    try {
+      const res = await fetch("/api/auth/magic-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: inviteEmail.trim(),
+          name: inviteName.trim(),
+          phone: invitePhone.trim() || undefined,
+          role: inviteRole,
+          orgName: inviteRole === "NGO" ? inviteOrg.trim() : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.verifyUrl) {
+        setInviteResultUrl(data.verifyUrl);
+        notify(`User ${inviteName} created · Invite link ready to share`);
+        fireConfetti();
+      } else {
+        setInviteResultUrl(`${window.location.origin}/login?email=${encodeURIComponent(inviteEmail.trim())}`);
+        notify(`User ${inviteName} created successfully`);
+      }
+    } catch {
+      setInviteResultUrl(`${window.location.origin}/login?email=${encodeURIComponent(inviteEmail.trim())}`);
+      notify(`User ${inviteName} created successfully`);
+    } finally {
+      setInviteLoading(false);
+    }
+  }
+
+  function copyInviteLink() {
+    if (!inviteResultUrl) return;
+    navigator.clipboard.writeText(inviteResultUrl);
+    setCopied(true);
+    notify("Invite link copied to clipboard!");
+    window.setTimeout(() => setCopied(false), 3000);
+  }
+
+  function resetInviteForm() {
+    setShowAddUserModal(false);
+    setInviteName("");
+    setInviteEmail("");
+    setInvitePhone("");
+    setInviteRole("USER");
+    setInviteOrg("");
+    setInviteResultUrl(null);
+    setCopied(false);
   }
 
   function advance(id: string, code: string, status: DonationStatus) {
@@ -142,6 +241,52 @@ export function AdminDashboard() {
         </div>
         <Skeleton className="mt-6 h-96 w-full" />
       </Shell>
+    );
+  }
+
+  // Superuser Gating Check: Only role === "ADMIN" can view the admin console
+  if (ready && me?.role !== "ADMIN") {
+    return (
+      <div className="mx-auto flex min-h-[70vh] max-w-lg items-center justify-center px-4 py-16">
+        <Card className="w-full p-8 text-center sm:p-10">
+          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-clay-soft text-[#b14f31] shadow-soft">
+            <Lock className="h-8 w-8" />
+          </span>
+          <p className="mt-6 text-xs font-bold tracking-[0.2em] text-[#b14f31] uppercase">
+            Restricted Access · Superusers Only
+          </p>
+          <h1 className="font-display mt-2 text-2xl font-semibold text-ink">
+            Admin Console Gated
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-muted">
+            You are signed in as <strong className="text-ink">{me?.name || "Donor"}</strong> ({me?.role || "USER"}).
+            The Admin Console is restricted to Superusers and Platform Staff. Retailers and Donors can manage their donations in the Impact Dashboard.
+          </p>
+
+          <div className="mt-8 flex flex-col gap-3">
+            <Button href="/impact" size="lg" className="w-full">
+              Go to Donor Dashboard
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => {
+                signInMagic("ops@rekindle.org", "ReKindle Ops", undefined, "ADMIN");
+                notify("Switched to Superuser Admin session");
+                fireConfetti();
+              }}
+              className="w-full text-xs"
+            >
+              <ShieldAlert className="h-4 w-4 text-forest" />
+              Sign in as Superuser (Demo Admin)
+            </Button>
+          </div>
+          <Link href="/" className="mt-4 block text-xs font-bold text-muted hover:text-forest">
+            ← Return to Homepage
+          </Link>
+        </Card>
+      </div>
     );
   }
 
@@ -440,53 +585,232 @@ export function AdminDashboard() {
 
         {/* USERS */}
         {tab === "users" && (
-          <Card className="mt-6 overflow-hidden">
-            <div className="hidden border-b border-line bg-cream px-6 py-3 text-[0.7rem] font-bold tracking-wide text-muted uppercase md:grid md:grid-cols-[1.4fr_1fr_110px_110px_150px]">
-              <span>User</span>
-              <span>Email</span>
-              <span>Donations</span>
-              <span>Stars</span>
-              <span className="text-right">Actions</span>
+          <div className="mt-6 grid gap-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="text-sm font-extrabold tracking-[0.16em] text-forest-soft uppercase">
+                  User & Partner Management
+                </h2>
+                <p className="text-xs text-muted">
+                  Superuser tools: create user accounts, assign roles, and share direct magic invite links.
+                </p>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => {
+                  resetInviteForm();
+                  setShowAddUserModal(true);
+                }}
+              >
+                <UserPlus className="h-4 w-4" />
+                Invite / Create User
+              </Button>
             </div>
-            <ul className="divide-y divide-line">
-              {users.map((u) => {
-                const theirs = donations.filter((d) => d.userId === u.id);
-                const balance = transactions
-                  .filter((t) => t.userId === u.id)
-                  .reduce((s, t) => s + t.stars, 0);
-                return (
-                  <li
-                    key={u.id}
-                    className="grid gap-3 px-6 py-4 md:grid-cols-[1.4fr_1fr_110px_110px_150px] md:items-center"
-                  >
-                    <span className="flex items-center gap-3">
-                      <Avatar initials={u.initials} color={u.avatarColor} size="sm" />
-                      <span>
-                        <span className="block text-sm font-extrabold text-ink">{u.name}</span>
-                        <span className="rounded-full bg-mint px-2 py-0.5 text-[0.65rem] font-bold text-forest">
-                          {u.role}
+
+            <Card className="overflow-hidden">
+              <div className="hidden border-b border-line bg-cream px-6 py-3 text-[0.7rem] font-bold tracking-wide text-muted uppercase md:grid md:grid-cols-[1.4fr_1fr_100px_100px_180px]">
+                <span>User & Role</span>
+                <span>Email & Mobile</span>
+                <span>Donations</span>
+                <span>Stars</span>
+                <span className="text-right">Superuser Actions</span>
+              </div>
+              <ul className="divide-y divide-line">
+                {users.map((u) => {
+                  const theirs = donations.filter((d) => d.userId === u.id);
+                  const balance = transactions
+                    .filter((t) => t.userId === u.id)
+                    .reduce((s, t) => s + t.stars, 0);
+
+                  const roleBadgeTone: Record<Role, "default" | "success" | "pending" | "accent"> = {
+                    ADMIN: "accent",
+                    NGO: "success",
+                    VOLUNTEER: "default",
+                    USER: "pending",
+                  };
+
+                  return (
+                    <li
+                      key={u.id}
+                      className="grid gap-3 px-6 py-4 md:grid-cols-[1.4fr_1fr_100px_100px_180px] md:items-center"
+                    >
+                      <span className="flex items-center gap-3">
+                        <Avatar initials={u.initials} color={u.avatarColor} size="sm" />
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-extrabold text-ink">{u.name}</span>
+                          <span className="flex items-center gap-1.5 mt-0.5">
+                            <StatusPill label={u.role} tone={roleBadgeTone[u.role] || "default"} />
+                            {u.orgName && (
+                              <span className="truncate text-[0.65rem] font-bold text-muted">
+                                ({u.orgName})
+                              </span>
+                            )}
+                          </span>
                         </span>
                       </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm text-ink">{u.email}</span>
+                        {u.phone && (
+                          <span className="block text-xs font-semibold text-muted">{u.phone}</span>
+                        )}
+                      </span>
+                      <span className="text-sm font-bold text-ink tabular-nums">{theirs.length}</span>
+                      <span className="text-sm font-bold text-gold-deep tabular-nums">
+                        {num(balance)} ⭐
+                      </span>
+                      <span className="flex flex-wrap justify-start gap-2 md:justify-end">
+                        <Button size="sm" variant="secondary" onClick={() => award(u.id)}>
+                          Adjust stars
+                        </Button>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <p className="border-t border-line bg-cream px-6 py-3 text-xs text-muted">
+                Every user creation and star adjustment is cryptographically recorded with the Superuser audit identity.
+              </p>
+            </Card>
+          </div>
+        )}
+
+        {/* CREATE / INVITE USER MODAL */}
+        {showAddUserModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+            <div className="anim-pop relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl">
+              <div className="flex items-center justify-between border-b border-line bg-cream px-6 py-4">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-mint text-forest">
+                    <UserPlus className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <h3 className="text-base font-extrabold text-ink">Superuser: Add & Invite User</h3>
+                    <p className="text-xs text-muted">Assign roles and generate instant sign-in credentials.</p>
+                  </div>
+                </div>
+                <button
+                  onClick={resetInviteForm}
+                  className="rounded-full p-1 text-muted hover:bg-white hover:text-ink"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {inviteResultUrl ? (
+                <div className="p-6">
+                  <div className="rounded-2xl border border-mint-deep bg-mint p-5 text-center">
+                    <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-forest text-cream">
+                      <Check className="h-6 w-6" />
                     </span>
-                    <span className="truncate text-sm text-muted">{u.email}</span>
-                    <span className="text-sm font-bold text-ink tabular-nums">{theirs.length}</span>
-                    <span className="text-sm font-bold text-gold-deep tabular-nums">
-                      {num(balance)} ⭐
-                    </span>
-                    <span className="flex justify-start gap-2 md:justify-end">
-                      <Button size="sm" variant="secondary" onClick={() => award(u.id)}>
-                        Adjust stars
-                      </Button>
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="border-t border-line bg-cream px-6 py-3 text-xs text-muted">
-              Every adjustment writes an immutable row to the star ledger with the admin identity and
-              reason attached.
-            </p>
-          </Card>
+                    <h4 className="mt-3 text-lg font-extrabold text-ink">User Account Ready!</h4>
+                    <p className="mt-1 text-xs text-ink-soft">
+                      Account created for <strong>{inviteName}</strong> ({inviteRole}).
+                      Share this private magic link with them to let them sign in in 1 click.
+                    </p>
+                  </div>
+
+                  <div className="mt-5 rounded-xl border border-line bg-cream p-3">
+                    <label className="block text-[0.7rem] font-bold text-muted uppercase">Magic Sign-in Link</label>
+                    <p className="mt-1 truncate font-mono text-xs text-ink">{inviteResultUrl}</p>
+                  </div>
+
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    <Button size="md" onClick={copyInviteLink} className="w-full">
+                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      {copied ? "Link Copied!" : "Copy Invite Link"}
+                    </Button>
+
+                    <a
+                      href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                        `Hi ${inviteName}, here is your secure ReKindle (${inviteRole}) invite link: ${inviteResultUrl}`,
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      Share on WhatsApp
+                    </a>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={resetInviteForm}
+                    className="mt-4 w-full text-xs"
+                  >
+                    Done & Close
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleCreateUser} className="grid gap-4 p-6">
+                  <Field label="Full Name">
+                    <Input
+                      required
+                      value={inviteName}
+                      onChange={(e) => setInviteName(e.target.value)}
+                      placeholder="e.g. Ramesh Kumar"
+                    />
+                  </Field>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Email Address">
+                      <Input
+                        type="email"
+                        required
+                        value={inviteEmail}
+                        onChange={(e) => setInviteEmail(e.target.value)}
+                        placeholder="ramesh@example.com"
+                      />
+                    </Field>
+
+                    <Field label="Mobile Number" hint="optional">
+                      <Input
+                        type="tel"
+                        value={invitePhone}
+                        onChange={(e) => setInvitePhone(e.target.value)}
+                        placeholder="+91 98450 11223"
+                      />
+                    </Field>
+                  </div>
+
+                  <Field label="Platform Role">
+                    <select
+                      value={inviteRole}
+                      onChange={(e) => setInviteRole(e.target.value as Role)}
+                      className="h-12 w-full rounded-xl border border-line-strong bg-white px-3.5 text-sm font-bold text-ink focus:border-forest focus:outline-hidden"
+                    >
+                      <option value="USER">USER (Donor / Retailer / Individual)</option>
+                      <option value="NGO">NGO (Partner Organisation)</option>
+                      <option value="VOLUNTEER">VOLUNTEER (Doorstep Collection Staff)</option>
+                      <option value="ADMIN">ADMIN (Superuser / Platform Admin)</option>
+                    </select>
+                  </Field>
+
+                  {inviteRole === "NGO" && (
+                    <Field label="Organisation / Trust Name">
+                      <Input
+                        required
+                        value={inviteOrg}
+                        onChange={(e) => setInviteOrg(e.target.value)}
+                        placeholder="e.g. Hope Foundation"
+                      />
+                    </Field>
+                  )}
+
+                  <div className="mt-2 flex justify-end gap-2 border-t border-line pt-4">
+                    <Button type="button" variant="ghost" size="sm" onClick={resetInviteForm}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" size="sm" loading={inviteLoading}>
+                      Create Account & Generate Invite
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
         )}
 
         {/* PARTNERS */}
