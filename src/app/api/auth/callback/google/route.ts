@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   // Attempt to recover the original initiating domain from the signed state token
   const statePayload = state ? verifyMagicToken(state) : null;
   const origin = statePayload?.orgName || getAppUrl(req);
-  const redirectUri = `${getAppUrl(req)}/api/auth/callback/google`;
+  const redirectUri = `${origin}/api/auth/callback/google`;
 
   if (error || !code) {
     return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(error || "cancelled")}`, origin));
