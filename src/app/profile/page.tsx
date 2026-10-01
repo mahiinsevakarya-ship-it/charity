@@ -290,7 +290,7 @@ function ProfileContent() {
               </div>
               <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-muted">
                 <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-forest" />
-                ReKindle stores your email, profile and donation history. Photos are attached only
+                SevaKarya stores your email, profile and donation history. Photos are attached only
                 to the donation you upload them with.
               </p>
             </Card>

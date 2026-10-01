@@ -323,7 +323,7 @@ export default function DonationDetailsPage() {
                   <Truck className="mt-0.5 h-4 w-4 shrink-0 text-forest" />
                   <span>
                     {donation.pickup.method === "PICKUP"
-                      ? "Doorstep pickup by a ReKindle volunteer"
+                      ? "Doorstep pickup by a SevaKarya volunteer"
                       : "Self drop-off at a partner point"}
                   </span>
                 </li>
@@ -363,7 +363,7 @@ export default function DonationDetailsPage() {
               <Card className="p-6">
                 <p className="flex items-center gap-2 text-sm font-extrabold text-ink">
                   <Sparkles className="h-4 w-4 text-gold" />
-                  Note from the ReKindle team
+                  Note from the SevaKarya team
                 </p>
                 <p className="mt-2 text-sm leading-relaxed text-muted">
                   {donation.verificationNote}

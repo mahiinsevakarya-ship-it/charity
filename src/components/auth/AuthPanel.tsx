@@ -219,7 +219,7 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
           </Link>
           <h1 className="font-display mt-8 text-4xl leading-[1.06] font-semibold text-ink text-balance">
             {mode === "login"
-              ? "Welcome back to ReKindle."
+              ? "Welcome back to SevaKarya."
               : "Give things a second life in 30 seconds."}
           </h1>
           <p className="mt-5 max-w-md text-base leading-relaxed text-muted">
@@ -280,7 +280,7 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
               </span>
               <div>
                 <p className="text-xs font-extrabold text-emerald-900">
-                  WhatsApp from ReKindle Security
+                  WhatsApp from SevaKarya Security
                 </p>
                 <p className="text-sm font-bold text-emerald-800">
                   Your verification code is <span className="underline">{generatedOtp}</span>
@@ -657,7 +657,7 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
           <p className="mt-6 text-center text-xs text-muted">
             {mode === "login" ? (
               <>
-                New to ReKindle?{" "}
+                New to SevaKarya?{" "}
                 <Link href="/signup" className="font-bold text-forest underline underline-offset-4">
                   Create an account
                 </Link>

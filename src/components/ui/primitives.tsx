@@ -38,7 +38,7 @@ export function Logo({ className = "h-9", dark = false }: { className?: string; 
       <span
         className={`text-[1.35rem] font-extrabold tracking-[-0.03em] ${dark ? "text-cream" : "text-ink"}`}
       >
-        ReKindle
+        SevaKarya
       </span>
     </span>
   );

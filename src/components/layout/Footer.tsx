@@ -75,7 +75,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted">
-            © 2026 ReKindle Technologies Pvt. Ltd. · Bengaluru, India
+            © 2026 SevaKarya Foundation · Bengaluru, India
           </p>
           <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-forest-soft">
             Built for a world that throws away less

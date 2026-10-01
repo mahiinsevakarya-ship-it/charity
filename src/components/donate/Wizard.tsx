@@ -41,7 +41,7 @@ const SLOTS = [
 const DROP_POINTS = [
   {
     id: "dp1",
-    name: "ReKindle Hub — Indiranagar",
+    name: "SevaKarya Hub — Indiranagar",
     address: "12, 100 Feet Road, Indiranagar, Bengaluru 560038",
     hours: "Mon–Sat · 10:00 AM – 6:00 PM",
   },
@@ -597,7 +597,7 @@ export function DonateWizard() {
                   <Store className="h-6 w-6 text-forest" />
                   <p className="mt-3 text-base font-extrabold text-ink">Drop Off</p>
                   <p className="mt-1 text-sm text-muted">
-                    Bring it to a partner point or ReKindle hub near you.
+                    Bring it to a partner point or SevaKarya hub near you.
                   </p>
                 </button>
               </div>

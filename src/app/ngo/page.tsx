@@ -5,7 +5,7 @@ import { NgoDashboard } from "./NgoDashboard";
 export const metadata: Metadata = {
   title: "Partner dashboard",
   description:
-    "Vidya Setu Trust on ReKindle — incoming donations, distribution reporting, live item needs and quarterly impact reports.",
+    "Vidya Setu Trust on SevaKarya — incoming donations, distribution reporting, live item needs and quarterly impact reports.",
 };
 
 export default function NgoPage() {

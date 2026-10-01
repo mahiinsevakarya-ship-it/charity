@@ -70,11 +70,11 @@ const NEXT_STATUS: Partial<Record<DonationStatus, DonationStatus>> = {
 };
 
 const AUDIT = [
-  { at: "29 Sep 2026 · 09:12", who: "ops@rekindle.org", action: "Verified donation RK-1024", target: "+146 ⭐ to Mahesh Rao" },
-  { at: "28 Sep 2026 · 18:40", who: "ops@rekindle.org", action: "Flagged RK-1008 as possible duplicate", target: "2 review notes" },
+  { at: "29 Sep 2026 · 09:12", who: "ops@sevakarya.com", action: "Verified donation RK-1024", target: "+146 ⭐ to Mahesh Rao" },
+  { at: "28 Sep 2026 · 18:40", who: "ops@sevakarya.com", action: "Flagged RK-1008 as possible duplicate", target: "2 review notes" },
   { at: "28 Sep 2026 · 15:02", who: "system", action: "Auto-rejected upload over 5 MB", target: "user ananya.s@example.com" },
-  { at: "27 Sep 2026 · 11:25", who: "admin@rekindle.org", action: "Approved partner Sanvedana Community Centre", target: "documents pending" },
-  { at: "26 Sep 2026 · 17:55", who: "ops@rekindle.org", action: "Adjusted stars −40 (reversed reward)", target: "duplicate submission" },
+  { at: "27 Sep 2026 · 11:25", who: "admin@sevakarya.com", action: "Approved partner Sanvedana Community Centre", target: "documents pending" },
+  { at: "26 Sep 2026 · 17:55", who: "ops@sevakarya.com", action: "Adjusted stars −40 (reversed reward)", target: "duplicate submission" },
   { at: "25 Sep 2026 · 10:08", who: "system", action: "Rate limit triggered on /api/donations", target: "3 requests blocked" },
 ];
 
@@ -90,6 +90,7 @@ export function AdminDashboard() {
     verifyDonation,
     adjustStars,
     createUser,
+    updateUserRole,
     signInMagic,
   } = useApp();
   const [tab, setTab] = useState<TabId>("overview");
@@ -273,7 +274,7 @@ export function AdminDashboard() {
               variant="secondary"
               size="md"
               onClick={() => {
-                signInMagic("ops@rekindle.org", "ReKindle Ops", undefined, "ADMIN");
+                signInMagic("ops@sevakarya.com", "SevaKarya Ops", undefined, "ADMIN");
                 notify("Switched to Superuser Admin session");
                 fireConfetti();
               }}
@@ -623,13 +624,6 @@ export function AdminDashboard() {
                     .filter((t) => t.userId === u.id)
                     .reduce((s, t) => s + t.stars, 0);
 
-                  const roleBadgeTone: Record<Role, "default" | "success" | "pending" | "accent"> = {
-                    ADMIN: "accent",
-                    NGO: "success",
-                    VOLUNTEER: "default",
-                    USER: "pending",
-                  };
-
                   return (
                     <li
                       key={u.id}
@@ -639,14 +633,28 @@ export function AdminDashboard() {
                         <Avatar initials={u.initials} color={u.avatarColor} size="sm" />
                         <span className="min-w-0">
                           <span className="block truncate text-sm font-extrabold text-ink">{u.name}</span>
-                          <span className="flex items-center gap-1.5 mt-0.5">
-                            <StatusPill label={u.role} tone={roleBadgeTone[u.role] || "default"} />
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <select
+                              value={u.role}
+                              disabled={u.id === me?.id}
+                              onChange={(e) => {
+                                const newRole = e.target.value as Role;
+                                updateUserRole(u.id, newRole);
+                                notify(`Updated ${u.name}'s role to ${newRole}`);
+                              }}
+                              className="h-7 rounded-md border border-line bg-white px-2 text-[0.7rem] font-bold text-ink focus:border-forest"
+                            >
+                              <option value="USER">USER (Donor)</option>
+                              <option value="ADMIN">ADMIN (Superuser)</option>
+                              <option value="NGO">NGO (Partner)</option>
+                              <option value="VOLUNTEER">VOLUNTEER</option>
+                            </select>
                             {u.orgName && (
                               <span className="truncate text-[0.65rem] font-bold text-muted">
                                 ({u.orgName})
                               </span>
                             )}
-                          </span>
+                          </div>
                         </span>
                       </span>
                       <span className="min-w-0">
@@ -723,7 +731,7 @@ export function AdminDashboard() {
 
                     <a
                       href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
-                        `Hi ${inviteName}, here is your secure ReKindle (${inviteRole}) invite link: ${inviteResultUrl}`,
+                        `Hi ${inviteName}, here is your secure SevaKarya (${inviteRole}) invite link: ${inviteResultUrl}`,
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"

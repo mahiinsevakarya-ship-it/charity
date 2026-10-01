@@ -21,7 +21,7 @@ import { PageHeader } from "@/components/ui/page";
 export const metadata: Metadata = {
   title: "About us",
   description:
-    "ReKindle is a reuse platform from Bengaluru. We pick up what you no longer need, verify it with a human, and route it to verified NGOs, shelters and schools — with a receipt for every step.",
+    "SevaKarya is a reuse platform from Bengaluru. We pick up what you no longer need, verify it with a human, and route it to verified NGOs, shelters and schools — with a receipt for every step.",
 };
 
 const PROBLEMS = [
@@ -172,9 +172,9 @@ export default function AboutPage() {
   return (
     <>
       <PageHeader
-        eyebrow="About ReKindle"
+        eyebrow="About SevaKarya"
         title="Useful things deserve a second life, not a landfill."
-        subtitle="ReKindle is a reuse platform from Bengaluru. We pick up what you no longer need, verify it with a human, and route it to schools, shelters and community partners who can use it this week."
+        subtitle="SevaKarya is a reuse platform from Bengaluru. We pick up what you no longer need, verify it with a human, and route it to schools, shelters and community partners who can use it this week."
         actions={
           <>
             <Button href="/donate">Start a donation</Button>
@@ -308,7 +308,7 @@ export default function AboutPage() {
       <section aria-labelledby="glance-heading" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <Reveal>
           <SectionHeading
-            eyebrow="How ReKindle works"
+            eyebrow="How SevaKarya works"
             title="Four stages, one promise: you always find out where it went."
             body="The full flow lives in the donation wizard. This is the shape of it — no forms, no jargon."
           />

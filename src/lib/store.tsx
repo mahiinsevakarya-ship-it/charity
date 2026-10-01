@@ -29,6 +29,13 @@ import {
 } from "./seed";
 import { CATEGORY_MAP, estimateStars, levelForStars } from "./catalog";
 
+export const ADMIN_EMAILS = [
+  "ops@sevakarya.com",
+  "admin@sevakarya.com",
+  "mahesh.sgv@gmail.com",
+  "mahesh@inncretech.com",
+];
+
 const STORAGE_KEY = "rekindle:v1";
 
 interface PersistedState {
@@ -82,6 +89,7 @@ interface AppValue {
   adjustStars: (userId: string, stars: number, reason: string) => void;
   redeemPerk: (stars: number, label: string) => void;
   updateMe: (patch: Partial<User>) => void;
+  updateUserRole: (userId: string, newRole: Role) => void;
   createUser: (data: {
     name: string;
     email: string;
@@ -115,7 +123,7 @@ const STATUS_NOTES: Record<DonationStatus, string> = {
   SUBMITTED: "We have your submission and are assigning a partner.",
   UNDER_REVIEW: "Our team is reviewing the photos and details you shared.",
   PICKUP_SCHEDULED: "Volunteer assigned — you will get a call before arrival.",
-  COLLECTED: "Picked up from your address by the ReKindle volunteer.",
+  COLLECTED: "Picked up from your address by the SevaKarya volunteer.",
   RECEIVED: "Arrived at the partner sorting hub, awaiting verification.",
   VERIFIED: "Counted, photographed and logged at the partner hub.",
   DISTRIBUTED: "Handed over to the partner's distribution drive.",
@@ -209,29 +217,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
       orgName?: string,
       darpanId?: string,
     ) => {
-      const existing = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+      const cleanEmail = email.trim().toLowerCase();
+      const isAdminEmail = ADMIN_EMAILS.includes(cleanEmail);
+      const effectiveRole: Role = role || (isAdminEmail ? "ADMIN" : "USER");
+
+      const existing = users.find((u) => u.email.toLowerCase() === cleanEmail);
       if (existing) {
-        if (phone || name || whatsappOptIn !== undefined || orgName || darpanId) {
-          const updated = users.map((u) =>
-            u.id === existing.id
-              ? {
-                  ...u,
-                  name: name?.trim() || u.name,
-                  phone: phone?.trim() || u.phone,
-                  whatsappOptIn: whatsappOptIn ?? u.whatsappOptIn,
-                  orgName: orgName?.trim() || u.orgName,
-                  darpanId: darpanId?.trim() || u.darpanId,
-                  role: role || u.role,
-                }
-              : u,
-          );
-          save({ users: updated, sessionId: existing.id });
-          return;
-        }
-        save({ sessionId: existing.id });
+        const nextRole = isAdminEmail ? "ADMIN" : role || existing.role;
+        const updated = users.map((u) =>
+          u.id === existing.id
+            ? {
+                ...u,
+                role: nextRole,
+                name: name?.trim() || u.name,
+                phone: phone?.trim() || u.phone,
+                whatsappOptIn: whatsappOptIn ?? u.whatsappOptIn,
+                orgName: orgName?.trim() || u.orgName,
+                darpanId: darpanId?.trim() || u.darpanId,
+              }
+            : u,
+        );
+        save({ users: updated, sessionId: existing.id });
         return;
       }
-      const clean = name?.trim() || email.split("@")[0].replace(/[._-]+/g, " ");
+      const clean = name?.trim() || cleanEmail.split("@")[0].replace(/[._-]+/g, " ");
       const displayName = clean
         .split(" ")
         .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
@@ -245,16 +254,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const user: User = {
         id: `u_${Date.now()}`,
         name: displayName,
-        email,
+        email: cleanEmail,
         phone: phone?.trim(),
         whatsappOptIn: whatsappOptIn ?? true,
         orgName: orgName?.trim(),
         darpanId: darpanId?.trim(),
-        avatarColor: role === "NGO" ? "#0e5c43" : "#16825f",
+        avatarColor: effectiveRole === "ADMIN" ? "#1a1a17" : effectiveRole === "NGO" ? "#0e5c43" : "#16825f",
         initials,
-        role: role || "USER",
+        role: effectiveRole,
         joinedAt: new Date().toISOString(),
-        badges: [],
+        badges: effectiveRole === "ADMIN" ? ["community_builder"] : [],
       };
       save({ users: [...users, user], sessionId: user.id });
     },
@@ -264,8 +273,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const signInGoogle = useCallback(
     (profile?: { email: string; name: string; avatarUrl?: string }) => {
       if (profile) {
-        const existing = users.find((u) => u.email.toLowerCase() === profile.email.toLowerCase());
+        const cleanEmail = profile.email.trim().toLowerCase();
+        const isAdminEmail = ADMIN_EMAILS.includes(cleanEmail);
+        const existing = users.find((u) => u.email.toLowerCase() === cleanEmail);
         if (existing) {
+          if (isAdminEmail && existing.role !== "ADMIN") {
+            const updated = users.map((u) => (u.id === existing.id ? { ...u, role: "ADMIN" as Role } : u));
+            save({ users: updated, sessionId: existing.id });
+            return;
+          }
           save({ sessionId: existing.id });
           return;
         }
@@ -278,17 +294,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const user: User = {
           id: `u_${Date.now()}`,
           name: profile.name,
-          email: profile.email,
-          avatarColor: "#4285F4",
+          email: cleanEmail,
+          avatarColor: isAdminEmail ? "#1a1a17" : "#4285F4",
           initials,
-          role: "USER",
+          role: isAdminEmail ? "ADMIN" : "USER",
           joinedAt: new Date().toISOString(),
-          badges: [],
+          badges: isAdminEmail ? ["community_builder"] : [],
         };
         save({ users: [...users, user], sessionId: user.id });
         return;
       }
-      const existing = users.find((u) => u.email === "mahesh.rao@example.com");
+      const existing = users.find((u) => u.email === "ops@sevakarya.com" || u.email === "mahesh.rao@example.com");
       save({ sessionId: existing ? existing.id : SEED_USERS[0].id });
     },
     [users, save],
@@ -312,7 +328,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const user: User = {
         id: `u_${Date.now()}`,
         name: displayName,
-        email: `${cleanPhone.replace(/\D/g, "")}@mobile.rekindle.org`,
+        email: `${cleanPhone.replace(/\D/g, "")}@mobile.sevakarya.com`,
         phone: cleanPhone,
         whatsappOptIn,
         avatarColor: "#16825f",
@@ -561,6 +577,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [users, save],
   );
 
+  const updateUserRole = useCallback(
+    (userId: string, newRole: Role) => {
+      const updated = users.map((u) => (u.id === userId ? { ...u, role: newRole } : u));
+      save({ users: updated });
+    },
+    [users, save],
+  );
+
   const value: AppValue = {
     ready,
     justVerifiedId,
@@ -586,6 +610,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     adjustStars,
     redeemPerk,
     updateMe,
+    updateUserRole,
     createUser,
   };
 

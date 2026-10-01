@@ -47,7 +47,7 @@ const PERKS = [
   },
   {
     id: "perk_bookmark",
-    label: "ReKindle x Vidya Setu bookmark set",
+    label: "SevaKarya x Vidya Setu bookmark set",
     stars: 250,
     emoji: "🔖",
     stock: "Made from recycled donations",

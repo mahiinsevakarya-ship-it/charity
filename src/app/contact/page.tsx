@@ -19,15 +19,15 @@ import { ContactForm } from "./ContactForm";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Questions about a pickup, an Impact Stars balance or a donation that has not moved? Reach the ReKindle team in Bengaluru — email, phone or a short form.",
+    "Questions about a pickup, an Impact Stars balance or a donation that has not moved? Reach the SevaKarya team in Bengaluru — email, phone or a short form.",
 };
 
 const CHANNELS = [
   {
     icon: Mail,
     label: "Email",
-    value: "help@rekindle.org",
-    href: "mailto:help@rekindle.org",
+    value: "help@sevakarya.com",
+    href: "mailto:help@sevakarya.com",
     note: "Donation issues, account questions, feedback. We reply within one working day, Monday to Saturday.",
     tone: "bg-mint text-forest",
   },
@@ -43,7 +43,7 @@ const CHANNELS = [
     icon: MapPin,
     label: "Office",
     value: "Koramangala, Bengaluru",
-    note: "ReKindle Technologies Pvt. Ltd., No. 42, 3rd Floor, 80 Feet Road, 4th Block, Bengaluru 560034. Visits by appointment — write to us first and we will keep someone free.",
+    note: "SevaKarya Foundation, No. 42, 3rd Floor, 80 Feet Road, 4th Block, Bengaluru 560034. Visits by appointment — write to us first and we will keep someone free.",
     tone: "bg-clay-soft text-[#b14f31]",
   },
   {
@@ -56,7 +56,7 @@ const CHANNELS = [
   {
     icon: Package,
     label: "Drop off instead",
-    value: "ReKindle Hub — Indiranagar",
+    value: "SevaKarya Hub — Indiranagar",
     note: "12, 100 Feet Road, Indiranagar, Bengaluru 560038 · Mon–Sat, 10:00 AM – 6:00 PM. No appointment needed for bundles under 10 items.",
     tone: "bg-sand text-ink-soft",
   },
@@ -213,10 +213,10 @@ export default function ContactPage() {
               <p className="text-sm leading-relaxed text-cream/70">
                 Start with the partner page — it walks through what we need from you. Prefer email?{" "}
                 <a
-                  href="mailto:partners@rekindle.org"
+                  href="mailto:partners@sevakarya.com"
                   className="font-bold text-gold underline underline-offset-4"
                 >
-                  partners@rekindle.org
+                  partners@sevakarya.com
                 </a>
               </p>
               <div className="mt-6 flex flex-col gap-3">

@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/ui/page";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "What ReKindle collects (account, address, donation photos), how we use it, cookies and localStorage, who we share it with, how long we keep it and the rights you can exercise.",
+    "What SevaKarya collects (account, address, donation photos), how we use it, cookies and localStorage, who we share it with, how long we keep it and the rights you can exercise.",
 };
 
 type Section = { id: string; title: string; paras: ReactNode[] };
@@ -47,7 +47,7 @@ const SECTIONS: Section[] = [
     title: "How we use your information",
     paras: [
       "We use your data to run the service: to send you a magic link, to book and confirm a pickup, to show your donation timeline, to credit Impact Stars after verification, and to answer you when you write in.",
-      "Beyond that, we use aggregated, non-identifying figures to publish impact statistics, and we may occasionally email you about a donation that needs your attention or a change to how ReKindle works. Marketing emails are separate, optional, and every one of them has a one-click unsubscribe.",
+      "Beyond that, we use aggregated, non-identifying figures to publish impact statistics, and we may occasionally email you about a donation that needs your attention or a change to how SevaKarya works. Marketing emails are separate, optional, and every one of them has a one-click unsubscribe.",
       "Our legal bases are your consent (you chose to give us this information to make a donation happen), the performance of our agreement with you, and our legitimate interest in keeping the Platform secure and improving it. Where Indian law requires a notice of consent, we ask for it at the point of collection.",
     ],
   },
@@ -65,7 +65,7 @@ const SECTIONS: Section[] = [
     title: "Cookies, localStorage and trackers",
     paras: [
       <>
-        ReKindle uses a small number of first-party cookies to keep you signed in and to remember
+        SevaKarya uses a small number of first-party cookies to keep you signed in and to remember
         preferences such as your chosen city. We do not run advertising cookies, and we do not drop
         third-party trackers that follow you across other websites.
       </>,
@@ -100,7 +100,7 @@ const SECTIONS: Section[] = [
     id: "storage",
     title: "Where your data lives",
     paras: [
-      "ReKindle is an Indian company and your data is stored on servers located in India, operated by established cloud providers. Pickup details, photos and star records stay within India.",
+      "SevaKarya is an Indian company and your data is stored on servers located in India, operated by established cloud providers. Pickup details, photos and star records stay within India.",
       "Our email delivery provider may process messages outside India in order to deliver them. Where that happens, we rely on contractual safeguards and keep the amount of data involved to the minimum needed to send the message.",
       "Volunteers and partner staff who can see your information are based in India, are trained on handling it, and are given access only for the donation in front of them.",
     ],
@@ -130,10 +130,10 @@ const SECTIONS: Section[] = [
       <>
         To exercise any of these, email{" "}
         <a
-          href="mailto:help@rekindle.org"
+          href="mailto:help@sevakarya.com"
           className="font-bold text-forest underline decoration-mint-deep underline-offset-4"
         >
-          help@rekindle.org
+          help@sevakarya.com
         </a>{" "}
         from the address on your account with the word “privacy” in the subject line. We reply
         within 30 days, usually within three working days, and we will not ask you why you want it.
@@ -146,7 +146,7 @@ const SECTIONS: Section[] = [
     id: "children",
     title: "Children's privacy",
     paras: [
-      "ReKindle is not directed at children under 18, and we do not knowingly create accounts for them. We do not knowingly collect their personal data either.",
+      "SevaKarya is not directed at children under 18, and we do not knowingly create accounts for them. We do not knowingly collect their personal data either.",
       "When a school, college or youth group runs a donation drive, the account is held by a teacher or an adult coordinator who is responsible for it. Children can take part in the collection without an individual account or a personal address being stored.",
       "If you believe a child has given us personal data without that kind of supervision, write to us and we will delete it promptly.",
     ],
@@ -155,7 +155,7 @@ const SECTIONS: Section[] = [
     id: "security",
     title: "How we keep it safe",
     paras: [
-      "All traffic to ReKindle is encrypted in transit (HTTPS). Access to production data is limited to a small number of engineers who need it, is logged, and is revoked when someone's role changes.",
+      "All traffic to SevaKarya is encrypted in transit (HTTPS). Access to production data is limited to a small number of engineers who need it, is logged, and is revoked when someone's role changes.",
       "We never collect payment card details — donors pay nothing — so there is no card data for anyone to steal. Donation photos are stored separately from public web paths and are only reachable through an authenticated request for that donation.",
       "If something does go wrong, we will tell you and the relevant authorities within the timelines Indian law requires, and we will tell you what happened in plain language rather than a legal one.",
     ],
@@ -166,13 +166,13 @@ const SECTIONS: Section[] = [
     paras: [
       "When we change this policy materially, we update the date below, show a notice on the Platform and email the address on your account at least 14 days before it takes effect. Minor clarifications just get a new date.",
       <>
-        The controller of your data is ReKindle Technologies Pvt. Ltd., No. 42, 3rd Floor, 80 Feet
+        The controller of your data is SevaKarya Foundation, No. 42, 3rd Floor, 80 Feet
         Road, 4th Block, Koramangala, Bengaluru 560034. For anything privacy-related, email{" "}
         <a
-          href="mailto:help@rekindle.org"
+          href="mailto:help@sevakarya.com"
           className="font-bold text-forest underline decoration-mint-deep underline-offset-4"
         >
-          help@rekindle.org
+          help@sevakarya.com
         </a>{" "}
         or use the{" "}
         <Link
@@ -267,7 +267,7 @@ export default function PrivacyPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <StatusPill label="Last updated 14 September 2026" tone="active" />
                 <span className="text-xs font-semibold text-muted">
-                  Applies to rekindle.org and the ReKindle app
+                  Applies to sevakarya.com and the SevaKarya app
                 </span>
               </div>
 

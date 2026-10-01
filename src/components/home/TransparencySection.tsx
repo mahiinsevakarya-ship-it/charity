@@ -5,7 +5,7 @@ import { Button, SectionHeading } from "@/components/ui/primitives";
 
 const CHAIN = [
   { label: "Donor", hint: "You, at home" },
-  { label: "ReKindle verification", hint: "Photos, counts, human review" },
+  { label: "SevaKarya verification", hint: "Photos, counts, human review" },
   { label: "NGO / community partner", hint: "Pickup or drop-off receipt" },
   { label: "Person, family or student", hint: "Distribution logged" },
   { label: "Impact", hint: "Reported back to you" },
@@ -27,7 +27,7 @@ export function TransparencySection() {
         <SectionHeading
           eyebrow="Trust & transparency"
           title="Know where your donation goes."
-          body="A donation should never disappear into a black box. Every item on ReKindle has a code, a chain of custody and a partner signature at the end of it."
+          body="A donation should never disappear into a black box. Every item on SevaKarya has a code, a chain of custody and a partner signature at the end of it."
         />
       </Reveal>
 

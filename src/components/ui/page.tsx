@@ -111,7 +111,7 @@ export function AuthGate({
             </Button>
           </div>
           <p className="mt-5 text-xs text-muted">
-            New to ReKindle?{" "}
+            New to SevaKarya?{" "}
             <Link href="/signup" className="font-bold text-forest underline underline-offset-4">
               Create an account
             </Link>

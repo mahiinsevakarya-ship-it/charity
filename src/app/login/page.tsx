@@ -4,7 +4,7 @@ import { AuthPanel } from "@/components/auth/AuthPanel";
 
 export const metadata: Metadata = {
   title: "Sign in",
-  description: "Sign in to ReKindle with a magic link or Google. No password required.",
+  description: "Sign in to SevaKarya with a magic link or Google. No password required.",
 };
 
 export default function LoginPage() {

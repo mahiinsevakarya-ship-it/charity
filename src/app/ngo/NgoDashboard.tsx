@@ -183,7 +183,7 @@ export function NgoDashboard() {
 
   function downloadReport(r: Report) {
     const rows: (string | number)[][] = [
-      ["ReKindle impact report", partnerName],
+      ["SevaKarya impact report", partnerName],
       ["Period", `${r.label} (${r.range})`],
       ["Generated", new Date().toLocaleString("en-IN")],
       [],
@@ -646,7 +646,7 @@ export function NgoDashboard() {
               transparency page
             </Link>
             . Need a change to your profile or a data pull? Write to{" "}
-            <span className="font-bold text-ink">partners@rekindle.org</span> and we will sort it
+            <span className="font-bold text-ink">partners@sevakarya.com</span> and we will sort it
             the same working day.
           </p>
           <Button href="/partners#network" variant="secondary" className="shrink-0">

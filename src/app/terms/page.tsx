@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/ui/page";
 export const metadata: Metadata = {
   title: "Terms & Conditions",
   description:
-    "The agreement between you and ReKindle — accounts, eligible items, pickups, verification, Impact Stars, partner organisations, liability and governing law.",
+    "The agreement between you and SevaKarya — accounts, eligible items, pickups, verification, Impact Stars, partner organisations, liability and governing law.",
 };
 
 type Section = { id: string; title: string; paras: ReactNode[] };
@@ -20,8 +20,8 @@ const SECTIONS: Section[] = [
     title: "Who we are",
     paras: [
       <>
-        ReKindle Technologies Pvt. Ltd. is a company registered in Bengaluru, Karnataka, which runs
-        the website and app at rekindle.org (the “Platform”). In these terms, “ReKindle”, “we”, “us”
+        SevaKarya Foundation is a company registered in Bengaluru, Karnataka, which runs
+        the website and app at sevakarya.com (the “Platform”). In these terms, “SevaKarya”, “we”, “us”
         and “our” mean the company, and “you” means anyone who uses the Platform.
       </>,
       <>
@@ -46,7 +46,7 @@ const SECTIONS: Section[] = [
     paras: [
       "By creating an account, scheduling a pickup or otherwise using the Platform, you agree to these Terms & Conditions and to our Privacy Policy. If you do not agree with either, please do not use the Platform.",
       "You must be 18 years or older to schedule a pickup in your own name. Under-18s can take part through a school, college or family account, with an adult responsible for handing the bundle to the volunteer.",
-      "We may update these terms from time to time. For material changes — anything that affects your stars, your data or your rights — we will email the address on your account and show a notice on the Platform at least 14 days before it takes effect. Continuing to use ReKindle after that date means you accept the updated terms; if you do not, close your account and stop using the Platform.",
+      "We may update these terms from time to time. For material changes — anything that affects your stars, your data or your rights — we will email the address on your account and show a notice on the Platform at least 14 days before it takes effect. Continuing to use SevaKarya after that date means you accept the updated terms; if you do not, close your account and stop using the Platform.",
     ],
   },
   {
@@ -58,14 +58,14 @@ const SECTIONS: Section[] = [
         and an email address so that pickup slots, receipts and Impact Stars have somewhere to land.
         You are responsible for anything that happens under your account, so tell us straight away at{" "}
         <a
-          href="mailto:help@rekindle.org"
+          href="mailto:help@sevakarya.com"
           className="font-bold text-forest underline decoration-mint-deep underline-offset-4"
         >
-          help@rekindle.org
+          help@sevakarya.com
         </a>{" "}
         if you think someone else has access to it.
       </>,
-      "ReKindle is built for giving, not for selling. Listing items for sale, soliciting donors for a commercial purpose, running resale operations through the Platform, or creating duplicate accounts to collect stars more than once are all grounds for immediate suspension.",
+      "SevaKarya is built for giving, not for selling. Listing items for sale, soliciting donors for a commercial purpose, running resale operations through the Platform, or creating duplicate accounts to collect stars more than once are all grounds for immediate suspension.",
       <>
         You can close your account at any time by writing to us. We will delete your profile,
         address and donation photos within 30 days, and keep only the minimal records the law
@@ -111,7 +111,7 @@ const SECTIONS: Section[] = [
         .
       </>,
       "If nobody is available and there is no safe place to leave the bundle, the slot is recorded as a no-show and can be rebooked once. Repeated no-shows may pause pickup privileges for 30 days — drop-off points stay open to you in the meantime.",
-      "Our volunteers carry ReKindle ID and may show it on request. They will never ask you for money, a tip or a favour of any kind, and a pickup is always free. If someone does, refuse and report it to us the same day — it is grounds for removing that volunteer from the network.",
+      "Our volunteers carry SevaKarya ID and may show it on request. They will never ask you for money, a tip or a favour of any kind, and a pickup is always free. If someone does, refuse and report it to us the same day — it is grounds for removing that volunteer from the network.",
       "For drop-offs, the collection point's address and hours are shown in the wizard. Please only bring items within the stated weight or size guidance so the hub team can accept them in one visit.",
     ],
   },
@@ -187,7 +187,7 @@ const SECTIONS: Section[] = [
       "Partners agree to accept only what their community can use, to log counts honestly, to report distribution back to donors, and to keep donated items out of commercial sale. In return, they appear on the Platform, receive routed donations and logistics support at no cost.",
       "If a partner stops reporting or misuses donations, we pause their listings and stop routing to them while we investigate. Listings can be restored once the reporting is brought up to date.",
       <>
-        Listing on ReKindle is not an endorsement of every activity of a partner organisation.
+        Listing on SevaKarya is not an endorsement of every activity of a partner organisation.
         Check the partner profile and, if you want more assurance, ask us for the verification date
         — we will happily share it. See{" "}
         <Link
@@ -206,7 +206,7 @@ const SECTIONS: Section[] = [
     paras: [
       "Photos, notes and messages you upload stay yours. You give us a licence to store them, show them on your own donation timeline, and share them with the receiving partner for verification. That licence ends when you delete the content or your account, except for copies already lawfully shared with a partner.",
       "We may publish aggregated statistics — items collected, cities covered, categories donated — that cannot identify you. Public figures on the Transparency dashboard are built from those aggregates.",
-      "The ReKindle name, logo, design, code, illustrations and written content belong to us or to our licensors. You may not copy, resell or rebrand them without written permission. Quoting a short excerpt with attribution in press or academic work is fine — just ask if you are unsure.",
+      "The SevaKarya name, logo, design, code, illustrations and written content belong to us or to our licensors. You may not copy, resell or rebrand them without written permission. Quoting a short excerpt with attribution in press or academic work is fine — just ask if you are unsure.",
     ],
   },
   {
@@ -215,7 +215,7 @@ const SECTIONS: Section[] = [
     paras: [
       "We work hard to offer a reliable service, but the Platform is provided “as is”. We cannot promise a particular pickup slot, a particular partner, or that an item you list will be accepted by someone nearby.",
       "Your items remain your responsibility until a volunteer collects them or a hub signs for them. After that we and our partners take reasonable care of them, but we are not responsible for delays caused by events outside our control — weather, strikes, civic restrictions or traffic.",
-      "To the extent the law allows, ReKindle's total liability for any claim connected to the Platform is limited to ₹2,000 or the amount you have paid us in the twelve months before the claim, whichever is higher. You have paid nothing, so the figure is ₹2,000.",
+      "To the extent the law allows, SevaKarya's total liability for any claim connected to the Platform is limited to ₹2,000 or the amount you have paid us in the twelve months before the claim, whichever is higher. You have paid nothing, so the figure is ₹2,000.",
       "Nothing in these terms limits liability that cannot be limited under Indian law, including liability for fraud, for death or personal injury caused by negligence, or your rights under the Consumer Protection Act, 2019.",
     ],
   },
@@ -223,15 +223,15 @@ const SECTIONS: Section[] = [
     id: "ending-law",
     title: "Ending your account, changes and governing law",
     paras: [
-      "You can stop using ReKindle and close your account whenever you like, by writing to help@rekindle.org. We may suspend or end access if these terms are breached, if the Platform is misused, or if we are required to do so by law. Where it is fair to do so, we will warn you first.",
+      "You can stop using SevaKarya and close your account whenever you like, by writing to help@sevakarya.com. We may suspend or end access if these terms are breached, if the Platform is misused, or if we are required to do so by law. Where it is fair to do so, we will warn you first.",
       "These terms are governed by the laws of India. The courts at Bengaluru, Karnataka have exclusive jurisdiction over any dispute, without prejudice to any consumer remedy available to you under applicable law.",
       <>
         Questions, complaints or a clause that does not read clearly? Write to{" "}
         <a
-          href="mailto:help@rekindle.org"
+          href="mailto:help@sevakarya.com"
           className="font-bold text-forest underline decoration-mint-deep underline-offset-4"
         >
-          help@rekindle.org
+          help@sevakarya.com
         </a>{" "}
         or use the{" "}
         <Link
@@ -252,7 +252,7 @@ export default function TermsPage() {
       <PageHeader
         eyebrow="Legal"
         title="Terms & Conditions"
-        subtitle="The plain-English agreement between you and ReKindle: what we do, what we ask of you, and what happens when something goes wrong."
+        subtitle="The plain-English agreement between you and SevaKarya: what we do, what we ask of you, and what happens when something goes wrong."
         actions={
           <Button href="/privacy" variant="secondary">
             Read the Privacy Policy
@@ -319,7 +319,7 @@ export default function TermsPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <StatusPill label="Last updated 14 September 2026" tone="active" />
                 <span className="text-xs font-semibold text-muted">
-                  Applies to rekindle.org and the ReKindle app
+                  Applies to sevakarya.com and the SevaKarya app
                 </span>
               </div>
 

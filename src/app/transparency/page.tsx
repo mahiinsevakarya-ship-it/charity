@@ -26,7 +26,7 @@ import { CategoryBar, DownloadReport } from "./Report";
 export const metadata: Metadata = {
   title: "Transparency",
   description:
-    "Where ReKindle donations go: collection, verification and distribution statistics, status definitions and partner reporting.",
+    "Where SevaKarya donations go: collection, verification and distribution statistics, status definitions and partner reporting.",
 };
 
 const FUNNEL = [
@@ -374,9 +374,9 @@ export default function TransparencyPage() {
                   ))}
                 </ul>
                 <p className="mt-7 rounded-xl bg-cream px-4 py-3 text-xs leading-relaxed text-muted">
-                  Last updated 29 September 2026 · Source: ReKindle operational database, verified
+                  Last updated 29 September 2026 · Source: SevaKarya operational database, verified
                   donation records only · A full quarterly report is available on request at
-                  transparency@rekindle.org
+                  transparency@sevakarya.com
                 </p>
               </Card>
             </Reveal>

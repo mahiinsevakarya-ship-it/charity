@@ -119,7 +119,7 @@ const GROUPS: Group[] = [
       {
         id: "delete-account",
         q: "How do I delete my account and my data?",
-        a: "Write to help@rekindle.org from the email address on your account and say “delete my account”. We remove your profile, address, donation photos and message history within 30 days and send you a confirmation. We keep only the minimal transaction records the law requires, flagged clearly in that confirmation mail.",
+        a: "Write to help@sevakarya.com from the email address on your account and say “delete my account”. We remove your profile, address, donation photos and message history within 30 days and send you a confirmation. We keep only the minimal transaction records the law requires, flagged clearly in that confirmation mail.",
       },
     ],
   },
@@ -130,7 +130,7 @@ const GROUPS: Group[] = [
     items: [
       {
         id: "ngo-join",
-        q: "How does an NGO join ReKindle?",
+        q: "How does an NGO join SevaKarya?",
         a: "Apply from the partners page with your registration certificate, PAN, an address proof, a needs list and one contact person. We run a reference call and verify everything within ten working days, publish your profile, and route the first pickups. There is no fee, now or later — partners never pay to receive.",
       },
       {

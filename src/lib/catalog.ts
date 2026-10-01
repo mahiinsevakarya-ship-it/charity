@@ -184,7 +184,7 @@ export const BADGES: Badge[] = [
   {
     id: "impact_champion",
     name: "Impact Champion",
-    description: "Reached the highest recognition tier on ReKindle.",
+    description: "Reached the highest recognition tier on SevaKarya.",
     icon: "trophy",
     requirement: "5,000+ Impact Stars",
   },

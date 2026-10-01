@@ -95,7 +95,7 @@ export function VerifyClient() {
               You are signed in!
             </h1>
             <p className="mt-2 text-sm text-ink-soft">
-              Welcome to ReKindle, <span className="font-bold text-forest">{userEmail}</span>.
+              Welcome to SevaKarya, <span className="font-bold text-forest">{userEmail}</span>.
             </p>
             <div className="mt-6 flex items-center justify-center gap-2 text-xs font-bold text-forest">
               <Sparkles className="h-4 w-4" /> Redirecting to your dashboard…

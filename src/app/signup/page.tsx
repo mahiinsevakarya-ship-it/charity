@@ -4,7 +4,7 @@ import { AuthPanel } from "@/components/auth/AuthPanel";
 
 export const metadata: Metadata = {
   title: "Create account",
-  description: "Create a ReKindle account with a magic link. No password required.",
+  description: "Create a SevaKarya account with a magic link. No password required.",
 };
 
 export default function SignupPage() {

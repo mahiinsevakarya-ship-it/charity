@@ -50,7 +50,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-line/80 bg-bg/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
-        <Link href="/" aria-label="ReKindle home" className="shrink-0">
+        <Link href="/" aria-label="SevaKarya home" className="shrink-0">
           <Logo className="h-8" />
         </Link>
 

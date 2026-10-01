@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
       <head>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <title>Google OAuth Setup Required - ReKindle</title>
+        <title>Google OAuth Setup Required - SevaKarya</title>
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fdfcfa; color: #1a1918; padding: 40px 20px; display: flex; justify-content: center; }
           .card { max-width: 540px; background: white; border: 1px solid #e8e4dc; border-radius: 20px; padding: 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); }

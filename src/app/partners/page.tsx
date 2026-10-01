@@ -29,7 +29,7 @@ import { PartnerApplyForm } from "./PartnerApplyForm";
 export const metadata: Metadata = {
   title: "Become a Partner",
   description:
-    "NGOs, shelters, schools and community groups: tell us what your people need and route verified ReKindle donations to your door. Document verification in 2–4 working days, no fees, ever.",
+    "NGOs, shelters, schools and community groups: tell us what your people need and route verified SevaKarya donations to your door. Document verification in 2–4 working days, no fees, ever.",
 };
 
 const CAPABILITIES = [
@@ -126,7 +126,7 @@ const FAQS = [
   },
   {
     q: "What does it cost?",
-    a: "Nothing. ReKindle never charges partners and takes no cut of the items you receive. Donors give to you, and it stays with you.",
+    a: "Nothing. SevaKarya never charges partners and takes no cut of the items you receive. Donors give to you, and it stays with you.",
   },
   {
     q: "What if we cannot accept something?",
@@ -358,7 +358,7 @@ export default function PartnersPage() {
                     <p className="text-sm font-extrabold text-ink">Where to send them</p>
                     <p className="mt-1 text-xs leading-relaxed text-muted">
                       Attach everything in the form below, or email{" "}
-                      <span className="font-bold text-ink">partners@rekindle.org</span>. We reply
+                      <span className="font-bold text-ink">partners@sevakarya.com</span>. We reply
                       within a working day.
                     </p>
                   </div>
@@ -387,7 +387,7 @@ export default function PartnersPage() {
             align="left"
             eyebrow="FAQ"
             title="Quick answers"
-            body="Anything else — write to partners@rekindle.org and a human replies."
+            body="Anything else — write to partners@sevakarya.com and a human replies."
           />
           <div className="mt-8 grid max-w-4xl gap-3">
             {FAQS.map((f, i) => (
