@@ -531,9 +531,13 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
                     <p className="mt-3 text-base font-extrabold text-ink">Check your inbox</p>
                     <p className="mt-1 text-xs leading-relaxed text-ink-soft">
                       {emailDispatched ? (
-                        <>A real magic link was sent via Resend to <strong>{email}</strong>.</>
+                        <>
+                          A secure magic link has been sent to <strong>{email}</strong>. Please check your inbox and spam folder.
+                        </>
                       ) : (
-                        <>We prepared a signed cryptographic token for <strong>{email}</strong>.</>
+                        <>
+                          A signed token was generated for <strong>{email}</strong>. (To deliver live emails to inboxes, add <code>RESEND_API_KEY</code> in Vercel settings).
+                        </>
                       )}
                     </p>
                   </div>
@@ -544,7 +548,7 @@ export function AuthPanel({ mode }: { mode: "login" | "signup" }) {
                       href={magicVerifyUrl}
                       className="w-full"
                     >
-                      Open Magic Link Now
+                      {emailDispatched ? "Open Magic Link in this Browser" : "Open Magic Link Now (Direct Test)"}
                       <ExternalLink className="h-4 w-4" />
                     </Button>
                   )}
