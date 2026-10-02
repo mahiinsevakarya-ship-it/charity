@@ -5,6 +5,7 @@ import { AppProvider } from "@/lib/store";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobileChrome } from "@/components/layout/MobileChrome";
+import { OrganizationJsonLd } from "@/components/seo/JsonLd";
 
 const sans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${sans.variable} ${display.variable}`}>
       <body className="min-h-screen pb-20 md:pb-0">
+        <OrganizationJsonLd />
         <AppProvider>
           <Header />
           <main>{children}</main>

@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Partner dashboard",
   description:
     "Vidya Setu Trust on SevaKarya — incoming donations, distribution reporting, live item needs and quarterly impact reports.",
+  robots: { index: false, follow: false },
 };
 
 export default function NgoPage() {
