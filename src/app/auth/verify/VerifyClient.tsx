@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, ArrowRight, CheckCircle2, Loader2, Sparkles } from "lucide-react";
@@ -15,6 +15,11 @@ export function VerifyClient() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const { signInMagic } = useApp();
+  const signInRef = useRef(signInMagic);
+  useEffect(() => {
+    signInRef.current = signInMagic;
+  }, [signInMagic]);
+  const verifiedRef = useRef(false);
 
   const [status, setStatus] = useState<Status>(() => (!token ? "error" : "verifying"));
   const [errorMessage, setErrorMessage] = useState(() =>
@@ -23,9 +28,8 @@ export function VerifyClient() {
   const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
-    if (!token) return;
-
-    let isMounted = true;
+    if (!token || verifiedRef.current) return;
+    verifiedRef.current = true;
 
     async function verify() {
       try {
@@ -37,12 +41,10 @@ export function VerifyClient() {
 
         const data = await res.json();
 
-        if (!isMounted) return;
-
         if (res.ok && data.valid && data.payload) {
           const { email, name, phone, role, whatsappOptIn, orgName, darpanId } = data.payload;
           setUserEmail(email);
-          signInMagic(email, name, phone, role, whatsappOptIn, orgName, darpanId);
+          signInRef.current(email, name, phone, role, whatsappOptIn, orgName, darpanId);
           setStatus("success");
           fireConfetti();
 
@@ -50,24 +52,19 @@ export function VerifyClient() {
 
           window.setTimeout(() => {
             router.push(target);
-          }, 1400);
+          }, 800);
         } else {
           setStatus("expired");
           setErrorMessage(data.error || "This link is expired or has already been used.");
         }
       } catch {
-        if (!isMounted) return;
         setStatus("error");
         setErrorMessage("Network error verifying your link. Please try again.");
       }
     }
 
     verify();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [token, signInMagic, router]);
+  }, [token, router]);
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-lg items-center justify-center px-4 py-16">

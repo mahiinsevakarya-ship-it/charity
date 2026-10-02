@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createMagicToken } from "@/lib/auth-token";
+import { ADMIN_EMAILS, createMagicToken } from "@/lib/auth-token";
 import { getAppUrl } from "@/lib/get-app-url";
 import type { Role } from "@/lib/types";
 
@@ -15,11 +15,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+    const isAdmin = ADMIN_EMAILS.includes(cleanEmail);
+    const effectiveRole: Role = isAdmin ? "ADMIN" : (role as Role) || "USER";
+
     const token = createMagicToken({
-      email: email.trim().toLowerCase(),
+      email: cleanEmail,
       name: name?.trim(),
       phone: phone?.trim(),
-      role: (role as Role) || "USER",
+      role: effectiveRole,
       whatsappOptIn: Boolean(whatsappOptIn),
       orgName: orgName?.trim(),
       darpanId: darpanId?.trim(),

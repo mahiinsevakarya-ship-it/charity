@@ -1,6 +1,13 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { Role } from "./types";
 
+export const ADMIN_EMAILS = [
+  "ops@sevakarya.com",
+  "admin@sevakarya.com",
+  "mahesh.sgv@gmail.com",
+  "mahesh@inncretech.com",
+];
+
 const SECRET = process.env.AUTH_SECRET || "rekindle-auth-secret-key-charity-platform-2026";
 
 export interface MagicTokenPayload {

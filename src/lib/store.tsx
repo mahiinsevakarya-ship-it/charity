@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -28,13 +29,8 @@ import {
   SEED_USERS,
 } from "./seed";
 import { CATEGORY_MAP, estimateStars, levelForStars } from "./catalog";
-
-export const ADMIN_EMAILS = [
-  "ops@sevakarya.com",
-  "admin@sevakarya.com",
-  "mahesh.sgv@gmail.com",
-  "mahesh@inncretech.com",
-];
+import { ADMIN_EMAILS } from "./auth-token";
+export { ADMIN_EMAILS };
 
 const STORAGE_KEY = "rekindle:v1";
 
@@ -139,6 +135,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<StarTransaction[]>(SEED_STAR_TRANSACTIONS);
   const [justVerifiedId, setJustVerifiedId] = useState<string | null>(null);
 
+  const stateRef = useRef({ session, users, donations, transactions });
+  useEffect(() => {
+    stateRef.current = { session, users, donations, transactions };
+  }, [session, users, donations, transactions]);
+
   /* eslint-disable react-hooks/set-state-in-effect -- syncing persisted localStorage on client mount */
   useEffect(() => {
     const saved = loadState();
@@ -162,11 +163,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const save = useCallback(
     (next: Partial<PersistedState>) => {
+      const current = stateRef.current;
       const state: PersistedState = {
-        sessionId: next.sessionId !== undefined ? next.sessionId : session,
-        users: next.users ?? users,
-        donations: next.donations ?? donations,
-        transactions: next.transactions ?? transactions,
+        sessionId: next.sessionId !== undefined ? next.sessionId : current.session,
+        users: next.users ?? current.users,
+        donations: next.donations ?? current.donations,
+        transactions: next.transactions ?? current.transactions,
       };
       setSession(state.sessionId);
       setUsers(state.users);
@@ -174,7 +176,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setTransactions(state.transactions);
       persist(state);
     },
-    [session, users, donations, transactions],
+    [],
   );
 
   const me = useMemo(() => users.find((u) => u.id === session) ?? null, [users, session]);
@@ -378,11 +380,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const createDonation = useCallback(
     (draft: DonationDraft): Donation => {
-      const maxSerial = donations.reduce((max, d) => {
+      const current = stateRef.current;
+      const maxSerial = current.donations.reduce((max, d) => {
         const n = Number(d.code.replace(/\D/g, ""));
         return Number.isFinite(n) && n > max ? n : max;
       }, 1024);
-      const code = `RK-${maxSerial + 1}`;
+      const code = `SK-${maxSerial + 1}`;
       const items = draft.items.map((it, i) => ({
         id: `${code}-${i}`,
         category: it.category,
@@ -396,7 +399,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const donation: Donation = {
         id: `d_${Date.now()}`,
         code,
-        userId: session ?? CURRENT_USER_ID,
+        userId: current.session ?? CURRENT_USER_ID,
         items,
         images: draft.images,
         pickup: {
@@ -412,14 +415,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
         expectedStars: estimateStars(items),
         createdAt: now,
         updatedAt: now,
-        timeline: [{ status: "SUBMITTED", at: now, note: "Donation submitted" }],
+        timeline: [
+          { status: "SUBMITTED" as const, at: now, note: STATUS_NOTES.SUBMITTED },
+          ...(draft.method === "PICKUP"
+            ? [{ status: "PICKUP_SCHEDULED" as const, at: now, note: STATUS_NOTES.PICKUP_SCHEDULED }]
+            : []),
+        ],
         flags: 0,
-        verificationNote: STATUS_NOTES[status],
       };
-      save({ donations: [donation, ...donations] });
+      save({ donations: [donation, ...current.donations] });
       return donation;
     },
-    [donations, session, save],
+    [save],
   );
 
   const pushTransaction = useCallback(
@@ -526,10 +533,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateMe = useCallback(
     (patch: Partial<User>) => {
-      if (!session) return;
-      save({ users: users.map((u) => (u.id === session ? { ...u, ...patch } : u)) });
+      const current = stateRef.current;
+      if (!current.session) return;
+      const updated = current.users.map((u) => (u.id === current.session ? { ...u, ...patch } : u));
+      save({ users: updated });
     },
-    [users, session, save],
+    [save],
   );
 
   const createUser = useCallback(
