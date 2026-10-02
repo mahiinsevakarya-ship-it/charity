@@ -1,162 +1,209 @@
 import Link from "next/link";
-import { ArrowRight, Leaf, MapPin, ShieldCheck, Star } from "lucide-react";
+import {
+  ArrowRight,
+  Leaf,
+  MapPin,
+  ShieldCheck,
+  Truck,
+  Users,
+} from "lucide-react";
 import { Button } from "@/components/ui/primitives";
 import { Reveal } from "@/components/ui/motion";
 
 function HeroScene() {
   return (
-    <div className="relative">
-      <svg
-        viewBox="0 0 620 500"
-        className="w-full drop-shadow-[0_30px_60px_rgba(26,26,23,0.13)]"
-        role="img"
-        aria-label="A donor handing a box of clothes and books to a volunteer, with a child receiving a book"
-      >
-        <defs>
-          <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
-            <circle cx="2" cy="2" r="1.4" fill="#1a1a17" opacity="0.07" />
-          </pattern>
-          <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#fdfbf6" />
-            <stop offset="100%" stopColor="#f7efe1" />
-          </linearGradient>
-        </defs>
-
-        <rect width="620" height="500" rx="36" fill="url(#sky)" />
-        <rect width="620" height="500" rx="36" fill="url(#dots)" />
-        <circle cx="512" cy="96" r="74" fill="#e6f2ec" />
-        <circle cx="96" cy="132" r="46" fill="#fdf3d8" opacity="0.85" />
-
-        {/* ground */}
-        <ellipse cx="310" cy="434" rx="252" ry="30" fill="#f0e6d3" />
-
-        {/* plant */}
-        <g>
-          <path d="M64 402h56l-8 34H72z" fill="#df7a58" />
-          <path d="M92 402c0-34 16-52 34-60-4 30-14 48-34 60Z" fill="#16825f" />
-          <path d="M92 402c-2-26-14-40-30-46 4 24 12 38 30 46Z" fill="#0e5c43" />
-        </g>
-
-        {/* donor */}
-        <g>
-          <rect x="150" y="300" width="25" height="94" rx="12" fill="#37423c" />
-          <rect x="182" y="300" width="25" height="94" rx="12" fill="#2c352f" />
-          <rect x="142" y="386" width="38" height="17" rx="8" fill="#1a1a17" />
-          <rect x="178" y="386" width="38" height="17" rx="8" fill="#1a1a17" />
-          <rect x="139" y="198" width="79" height="114" rx="32" fill="#0e5c43" />
-          <path
-            d="M214 226l44 56"
-            stroke="#e8b48c"
-            strokeWidth="19"
-            strokeLinecap="round"
-            fill="none"
-          />
-          <path d="M210 220l22 27" stroke="#0a4533" strokeWidth="21" strokeLinecap="round" fill="none" />
-          <circle cx="178" cy="168" r="28" fill="#e8b48c" />
-          <ellipse cx="178" cy="151" rx="28" ry="21" fill="#2b2118" />
-          <circle cx="169" cy="170" r="2.8" fill="#1a1a17" />
-          <circle cx="188" cy="170" r="2.8" fill="#1a1a17" />
-          <path
-            d="M170 181c5 5 12 5 17 0"
-            stroke="#1a1a17"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-            fill="none"
-          />
-        </g>
-
-        {/* carton with items */}
-        <g>
-          <rect x="268" y="246" width="46" height="56" rx="6" fill="#0e5c43" />
-          <rect x="308" y="252" width="9" height="44" rx="3" fill="#fbf6ec" />
-          <rect x="322" y="258" width="58" height="46" rx="10" fill="#df7a58" />
-          <path d="M344 258l7 12 7-12" fill="#fbf6ec" />
-          <rect x="252" y="296" width="118" height="18" rx="7" fill="#d19e6b" />
-          <rect x="252" y="308" width="118" height="72" rx="8" fill="#e0b183" />
-          <rect x="304" y="308" width="14" height="72" fill="#cd945f" opacity="0.75" />
-          <path d="M252 320h118" stroke="#cd945f" strokeWidth="2" />
-        </g>
-
-        {/* volunteer */}
-        <g>
-          <rect x="416" y="302" width="25" height="92" rx="12" fill="#33404a" />
-          <rect x="448" y="302" width="25" height="92" rx="12" fill="#28333c" />
-          <rect x="408" y="386" width="38" height="17" rx="8" fill="#1a1a17" />
-          <rect x="444" y="386" width="38" height="17" rx="8" fill="#1a1a17" />
-          <rect x="404" y="198" width="81" height="116" rx="32" fill="#fbf6ec" stroke="#e3dbc9" strokeWidth="2" />
-          <rect x="424" y="198" width="44" height="116" rx="22" fill="#df7a58" />
-          <path
-            d="M410 228l-42 54"
-            stroke="#c98a5e"
-            strokeWidth="19"
-            strokeLinecap="round"
-            fill="none"
-          />
-          <path d="M414 222l-22 26" stroke="#fbf6ec" strokeWidth="21" strokeLinecap="round" fill="none" />
-          <circle cx="445" cy="168" r="28" fill="#c98a5e" />
-          <ellipse cx="445" cy="150" rx="28" ry="21" fill="#3b2a1e" />
-          <circle cx="436" cy="170" r="2.8" fill="#1a1a17" />
-          <circle cx="455" cy="170" r="2.8" fill="#1a1a17" />
-          <path
-            d="M437 181c5 5 12 5 17 0"
-            stroke="#1a1a17"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-            fill="none"
-          />
-          {/* clipboard */}
-          <g transform="rotate(9 500 268)">
-            <rect x="476" y="236" width="46" height="60" rx="7" fill="#ffffff" stroke="#ddd3c0" strokeWidth="2" />
-            <rect x="488" y="230" width="22" height="12" rx="4" fill="#0e5c43" />
-            <path d="M486 258h26M486 270h20" stroke="#c9c1ae" strokeWidth="4" strokeLinecap="round" />
-          </g>
-        </g>
-
-        {/* child receiving a book */}
-        <g>
-          <rect x="524" y="344" width="16" height="46" rx="8" fill="#16825f" />
-          <rect x="546" y="344" width="16" height="46" rx="8" fill="#16825f" />
-          <rect x="518" y="384" width="26" height="13" rx="6" fill="#1a1a17" />
-          <rect x="542" y="384" width="26" height="13" rx="6" fill="#1a1a17" />
-          <rect x="518" y="296" width="50" height="56" rx="22" fill="#f0b01c" />
-          <path d="M568 318l24 22" stroke="#c98a5e" strokeWidth="15" strokeLinecap="round" fill="none" />
-          <rect x="576" y="322" width="34" height="26" rx="4" fill="#0e5c43" transform="rotate(-8 593 335)" />
-          <circle cx="543" cy="278" r="20" fill="#c98a5e" />
-          <ellipse cx="543" cy="265" rx="20" ry="15" fill="#2b2118" />
-          <circle cx="537" cy="280" r="2.2" fill="#1a1a17" />
-          <circle cx="550" cy="280" r="2.2" fill="#1a1a17" />
-          <path d="M538 288c3 4 8 4 11 0" stroke="#1a1a17" strokeWidth="2.2" strokeLinecap="round" fill="none" />
-        </g>
-
-        {/* handoff spark */}
-        <path
-          d="M244 244c26-30 62-38 96-22"
-          stroke="#f0b01c"
-          strokeWidth="3"
-          strokeLinecap="round"
-          fill="none"
-          className="flow-line"
+    <div className="relative mx-auto w-full max-w-[580px]">
+      {/* Central Illustration Container */}
+      <div className="relative overflow-hidden rounded-[2.5rem] border border-line bg-gradient-to-br from-[#fdfbf7] via-[#faf4e8] to-[#f4ebe0] p-6 shadow-[0_30px_70px_-20px_rgba(14,92,67,0.18)] sm:p-8">
+        {/* Subtle Background Pattern & Glow */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-mint/50 blur-3xl"
         />
-      </svg>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-gold-soft/60 blur-3xl"
+        />
 
-      {/* floating chips */}
-      <div className="absolute top-4 left-4 flex items-center gap-2 rounded-2xl border border-line bg-white/95 px-3.5 py-2.5 text-sm font-bold text-ink shadow-card anim-float sm:top-6 sm:left-6">
-        <span className="text-base">👕</span> 8 clothes
-      </div>
-      <div
-        className="absolute top-10 right-4 flex items-center gap-2 rounded-2xl border border-[#f3e0ab] bg-gold-soft px-3.5 py-2.5 text-sm font-extrabold text-gold-deep shadow-card anim-float sm:right-6"
-        style={{ animationDelay: "1.2s" }}
-      >
-        <Star className="h-4 w-4 fill-gold text-gold" /> +120 after verification
-      </div>
-      <div
-        className="absolute bottom-16 left-6 flex items-center gap-2 rounded-2xl border border-line bg-white/95 px-3.5 py-2.5 text-sm font-bold text-ink shadow-card anim-float sm:bottom-20"
-        style={{ animationDelay: "0.6s" }}
-      >
-        <span className="text-base">📚</span> 12 books
-      </div>
-      <div className="absolute right-4 bottom-6 flex items-center gap-2 rounded-2xl border border-mint-deep bg-mint px-3.5 py-2.5 text-sm font-bold text-forest shadow-card sm:right-8">
-        <ShieldCheck className="h-4 w-4" /> Pickup scheduled
+        {/* Vector Artwork */}
+        <svg
+          viewBox="0 0 520 400"
+          className="relative z-10 h-auto w-full"
+          role="img"
+          aria-label="SevaKarya Giving Ecosystem: donor parcel routed to school library and community shelter"
+        >
+          <defs>
+            <linearGradient id="boxGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#dfb78c" />
+              <stop offset="100%" stopColor="#bf8f5f" />
+            </linearGradient>
+            <linearGradient id="forestGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#16825f" />
+              <stop offset="100%" stopColor="#0e5c43" />
+            </linearGradient>
+            <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#f7c844" />
+              <stop offset="100%" stopColor="#f0b01c" />
+            </linearGradient>
+            <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+              <feDropShadow dx="0" dy="12" stdDeviation="10" floodColor="#0e5c43" floodOpacity="0.12" />
+            </filter>
+          </defs>
+
+          {/* Background Ambient Pedestal */}
+          <ellipse cx="260" cy="350" rx="210" ry="32" fill="#ebdcc8" opacity="0.6" />
+          <ellipse cx="260" cy="345" rx="160" ry="22" fill="#f5ede0" />
+
+          {/* Dynamic Golden Giving Arc */}
+          <path
+            d="M 120 280 C 120 140, 400 140, 400 270"
+            fill="none"
+            stroke="url(#goldGrad)"
+            strokeWidth="3.5"
+            strokeDasharray="8 8"
+            className="flow-line"
+            opacity="0.85"
+          />
+
+          {/* Central SevaKarya Care Box */}
+          <g filter="url(#shadow)" transform="translate(180, 180)">
+            {/* Box Body */}
+            <rect x="0" y="40" width="160" height="120" rx="16" fill="url(#boxGrad)" />
+            {/* Box Flap shading */}
+            <path d="M 0 40 L 80 58 L 160 40 L 160 52 L 80 70 L 0 52 Z" fill="#aa7949" opacity="0.4" />
+            {/* Vertical Eco Ribbon */}
+            <rect x="70" y="40" width="20" height="120" fill="url(#forestGrad)" />
+            {/* Horizontal Ribbon */}
+            <rect x="0" y="90" width="160" height="18" fill="url(#forestGrad)" opacity="0.9" />
+
+            {/* Official SevaKarya Sprout Seal */}
+            <circle cx="80" cy="99" r="24" fill="#fdfcfa" stroke="#e8e4dc" strokeWidth="2" />
+            <circle cx="80" cy="99" r="20" fill="#0e5c43" />
+            {/* Sprout Icon in seal */}
+            <path
+              d="M 74 107 C 74 100, 78 95, 84 93 C 84 99, 81 104, 74 107 Z"
+              fill="#f0b01c"
+            />
+            <path
+              d="M 86 107 C 86 102, 83 97, 78 95 C 78 101, 81 105, 86 107 Z"
+              fill="#a7f3d0"
+            />
+            <line x1="80" y1="99" x2="80" y2="108" stroke="#fdfcfa" strokeWidth="2" strokeLinecap="round" />
+
+            {/* Sparkle badge on box */}
+            <circle cx="140" cy="55" r="10" fill="#f0b01c" />
+            <path d="M 140 49 L 142 53 L 146 55 L 142 57 L 140 61 L 138 57 L 134 55 L 138 53 Z" fill="#ffffff" />
+          </g>
+
+          {/* Left Giving Stack: Folded Clothes & Storybooks */}
+          <g filter="url(#shadow)" transform="translate(60, 210)">
+            {/* Bottom Book */}
+            <rect x="10" y="90" width="100" height="22" rx="4" fill="#0e5c43" />
+            <rect x="10" y="92" width="6" height="18" fill="#f0b01c" />
+            <rect x="110" y="93" width="90" height="16" fill="#fdfcfa" rx="2" opacity="0.3" />
+
+            {/* Middle Book (Terracotta) */}
+            <rect x="18" y="70" width="88" height="20" rx="4" fill="#df7a58" />
+            <rect x="18" y="72" width="6" height="16" fill="#fdfcfa" />
+
+            {/* Top Folded Apparel with Tag */}
+            <rect x="12" y="32" width="96" height="38" rx="12" fill="#16825f" />
+            <path d="M 45 32 Q 60 48 75 32" fill="none" stroke="#0e5c43" strokeWidth="3" strokeLinecap="round" />
+            {/* Garment Tag */}
+            <rect x="85" y="44" width="18" height="22" rx="3" fill="#fdfcfa" stroke="#e8e4dc" strokeWidth="1" />
+            <circle cx="94" cy="48" r="2" fill="#0e5c43" />
+            <line x1="88" y1="54" x2="100" y2="54" stroke="#a7f3d0" strokeWidth="2" />
+            <line x1="88" y1="59" x2="96" y2="59" stroke="#cbd5e1" strokeWidth="1.5" />
+          </g>
+
+          {/* Right Receiving Outcome: School Desk, Backpack & Verified Handover */}
+          <g filter="url(#shadow)" transform="translate(360, 210)">
+            {/* Backpack */}
+            <rect x="25" y="40" width="70" height="75" rx="20" fill="#0e5c43" />
+            <rect x="35" y="65" width="50" height="40" rx="10" fill="#16825f" />
+            <circle cx="60" cy="52" r="6" fill="#f0b01c" />
+            <rect x="52" y="78" width="16" height="5" rx="2.5" fill="#fdfcfa" />
+            {/* Backpack Straps */}
+            <path d="M 40 40 Q 60 20 80 40" fill="none" stroke="#f0b01c" strokeWidth="4" strokeLinecap="round" />
+
+            {/* Pair of Shoes */}
+            <rect x="5" y="98" width="40" height="16" rx="8" fill="#f0b01c" />
+            <path d="M 12 98 L 22 92 L 35 98" fill="#df7a58" />
+            <rect x="20" y="106" width="22" height="6" rx="3" fill="#ffffff" opacity="0.9" />
+
+            {/* Verified Partner Stamp Flag */}
+            <g transform="translate(60, 0)">
+              <line x1="20" y1="10" x2="20" y2="45" stroke="#0e5c43" strokeWidth="3" strokeLinecap="round" />
+              <path d="M 20 10 L 65 18 L 20 28 Z" fill="#f0b01c" />
+              <circle cx="34" cy="19" r="3" fill="#ffffff" />
+            </g>
+          </g>
+
+          {/* Floating Sparkles */}
+          <g transform="translate(140, 110)">
+            <path d="M 10 0 L 13 7 L 20 10 L 13 13 L 10 20 L 7 13 L 0 10 L 7 7 Z" fill="#f0b01c" />
+          </g>
+          <g transform="translate(380, 120)">
+            <path d="M 8 0 L 10 6 L 16 8 L 10 10 L 8 16 L 6 10 L 0 8 L 6 6 Z" fill="#16825f" />
+          </g>
+          <g transform="translate(255, 70)">
+            <path d="M 12 0 L 15 9 L 24 12 L 15 15 L 12 24 L 9 15 L 0 12 L 9 9 Z" fill="#f0b01c" />
+          </g>
+        </svg>
+
+        {/* 4 Interactive Live Floating Cards */}
+        {/* 1. Top-Left: Curated Items */}
+        <div className="absolute top-3 left-3 flex items-center gap-2.5 rounded-2xl border border-line-strong bg-white/95 px-3 py-2 shadow-card backdrop-blur-md anim-float sm:top-5 sm:left-5 sm:px-3.5 sm:py-2.5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-mint text-sm font-bold text-forest">
+            📚
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-xs font-extrabold text-ink">15 Books & 8 Clothes</p>
+            <p className="truncate text-[0.65rem] font-semibold text-muted">Vidya Setu School Library</p>
+          </div>
+        </div>
+
+        {/* 2. Top-Right: Star Reward */}
+        <div
+          className="absolute top-3 right-3 flex items-center gap-2 rounded-2xl border border-[#f3e0ab] bg-gold-soft/95 px-3 py-2 shadow-card backdrop-blur-md anim-float sm:top-5 sm:right-5 sm:px-3.5 sm:py-2.5"
+          style={{ animationDelay: "1.2s" }}
+        >
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gold text-xs font-bold text-white shadow-xs">
+            ⭐
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-xs font-extrabold text-gold-deep">+260 Impact Stars</p>
+            <p className="truncate text-[0.65rem] font-semibold text-gold-deep/80">Credited on verified pickup</p>
+          </div>
+        </div>
+
+        {/* 3. Bottom-Left: Community Impact */}
+        <div
+          className="absolute bottom-3.5 left-3 flex max-w-[200px] items-center gap-2 rounded-2xl border border-line bg-white/95 px-3 py-1.5 shadow-card backdrop-blur-md anim-float sm:bottom-5 sm:left-5 sm:px-3 sm:py-2"
+          style={{ animationDelay: "0.6s" }}
+        >
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-mint text-forest">
+            <Users className="h-3 w-3" />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-[0.72rem] font-extrabold text-ink">45+ Children</p>
+            <p className="truncate text-[0.62rem] font-bold text-forest">Govt Primary School</p>
+          </div>
+        </div>
+
+        {/* 4. Bottom-Right: Doorstep Pickup Status */}
+        <div
+          className="absolute right-3 bottom-3.5 flex max-w-[190px] items-center gap-2 rounded-2xl border border-mint-deep bg-mint/95 px-3 py-1.5 shadow-card backdrop-blur-md sm:right-5 sm:bottom-5 sm:px-3 sm:py-2"
+          style={{ animationDelay: "1.8s" }}
+        >
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-forest text-cream">
+            <Truck className="h-3 w-3" />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-[0.72rem] font-extrabold text-forest-dark">Doorstep Pickup</p>
+            <p className="truncate text-[0.62rem] font-bold text-forest">Today · 10 AM – 12 PM</p>
+          </div>
+        </div>
       </div>
     </div>
   );
